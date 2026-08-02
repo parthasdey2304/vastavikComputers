@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/auth_provider.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -15,11 +16,33 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
+  bool _isLoading = false;
+
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _login() async {
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) return;
+    
+    await ref.read(authControllerProvider.notifier).signIn(
+      _emailController.text.trim(),
+      _passwordController.text.trim(),
+    );
+    
+    if (mounted) {
+      final authState = ref.read(authControllerProvider);
+      if (authState.hasError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(authState.error.toString())),
+        );
+      } else {
+        context.go('/home');
+      }
+    }
   }
 
   @override
@@ -105,14 +128,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                 // Login Button
                 ElevatedButton(
-                  onPressed: () {
-                    // TODO: Implement login logic
-                    context.go('/home');
-                  },
-                  child: const Text(
-                    'Log In',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
+                  onPressed: ref.watch(authControllerProvider).isLoading ? null : _login,
+                  child: ref.watch(authControllerProvider).isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          'Log In',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
                 ),
                 const SizedBox(height: 24),
                 

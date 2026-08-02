@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/auth_provider.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
@@ -16,12 +17,34 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
+  bool _isLoading = false;
+
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _signup() async {
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty || _nameController.text.isEmpty) return;
+    
+    await ref.read(authControllerProvider.notifier).signUp(
+      _emailController.text.trim(),
+      _passwordController.text.trim(),
+    );
+    
+    if (mounted) {
+      final authState = ref.read(authControllerProvider);
+      if (authState.hasError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(authState.error.toString())),
+        );
+      } else {
+        context.go('/home');
+      }
+    }
   }
 
   @override
@@ -104,13 +127,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
                 // Sign Up Button
                 ElevatedButton(
-                  onPressed: () {
-                    // TODO: Implement signup logic
-                  },
-                  child: const Text(
-                    'Sign Up',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
+                  onPressed: ref.watch(authControllerProvider).isLoading ? null : _signup,
+                  child: ref.watch(authControllerProvider).isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          'Sign Up',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
                 ),
                 const SizedBox(height: 24),
                 

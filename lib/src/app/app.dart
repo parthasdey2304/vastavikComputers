@@ -8,6 +8,7 @@ class VastavikApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final goRouter = ref.watch(routerProvider);
     return MaterialApp.router(
       title: 'vastavikComputers',
       theme: AppTheme.lightTheme,
