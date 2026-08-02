@@ -57,7 +57,6 @@ dependencies:
   file_saver: ^0.4.0
   pdf: ^3.13.0
   cloud_firestore: ^6.7.1
-  no_screenshot: ^1.2.0
   printing: ^5.15.0
   package_info_plus: ^10.2.1
   path_provider: ^2.1.6
@@ -70,6 +69,7 @@ dev_dependencies:
   riverpod_generator: any
   freezed: any
   json_serializable: ^6.8.0
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

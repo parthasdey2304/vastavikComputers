@@ -5,7 +5,6 @@ import 'src/app/app.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'package:no_screenshot/no_screenshot.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,14 +17,7 @@ void main() async {
     debugPrint('Firebase init error: $e');
   }
 
-  // Block screenshots and screen recording on mobile platforms
-  if (!kIsWeb) {
-    try {
-      await NoScreenshot.instance.screenshotOff();
-    } catch (e) {
-      debugPrint('Screenshot blocking not supported on this platform: $e');
-    }
-  }
+  // Screenshot blocking is now handled natively in MainActivity.kt
   
   runApp(const ProviderScope(child: VastavikApp()));
 }

@@ -5,7 +5,6 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   file_saver
   gtk
-  no_screenshot
   printing
   url_launcher_linux
 )

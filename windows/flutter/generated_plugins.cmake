@@ -8,7 +8,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   file_saver
   firebase_auth
   firebase_core
-  no_screenshot
   permission_handler_windows
   printing
   speech_to_text_windows
