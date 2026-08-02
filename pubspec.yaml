@@ -56,6 +56,9 @@ dependencies:
   flutter_markdown: ^0.7.7+1
   file_saver: ^0.4.0
   pdf: ^3.13.0
+  cloud_firestore: ^6.7.1
+  no_screenshot: ^1.2.0
+  printing: ^5.15.0
 
 dev_dependencies:
   flutter_lints: ^6.0.0

@@ -8,6 +8,7 @@ import '../features/auth/presentation/providers/auth_provider.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/video_lesson/presentation/screens/video_lesson_screen.dart';
 import '../features/admin/presentation/screens/admin_dashboard.dart';
+import '../features/onboarding/presentation/screens/user_setup_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateChangesProvider);
@@ -50,6 +51,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/admin',
         builder: (context, state) => const AdminDashboard(),
+      ),
+      GoRoute(
+        path: '/setup',
+        builder: (context, state) => const UserSetupScreen(),
       ),
     ],
   );

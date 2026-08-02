@@ -1,20 +1,98 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/models/user_model.dart';
+import '../../../../core/services/firestore_service.dart';
+import 'edit_profile_screen.dart';
+import 'my_notes_screen.dart';
+import 'payment_history_screen.dart';
+import 'settings_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final _firestoreService = FirestoreService();
+  UserModel? _user;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    try {
+      final user = await _firestoreService.getUserProfile(uid);
+      if (mounted) {
+        setState(() {
+          _user = user;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _launchUpgrade() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Payment integration coming soon! Contact admin for premium access.')),
+    );
+  }
+
+  Future<void> _logout() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Log Out'),
+        content: const Text('Are you sure you want to log out?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Log Out', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true && mounted) {
+      await FirebaseAuth.instance.signOut();
+      if (mounted) {
+        context.go('/login');
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: AppTheme.background,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final displayName = _user?.name ?? FirebaseAuth.instance.currentUser?.displayName ?? 'Student';
+    final subtitle = _user != null ? '${_user!.studentClass} • ${_user!.board} Board' : 'Complete your profile';
+
     return Scaffold(
       backgroundColor: AppTheme.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'My Profile',
-          style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold),
-        ),
+        title: const Text('My Profile', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -27,16 +105,10 @@ class ProfileScreen extends StatelessWidget {
               child: Icon(Icons.person, size: 50, color: Colors.white),
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Parth Vastavik',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
-            ),
-            const Text(
-              'Class 12 • ICSE Board',
-              style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
-            ),
+            Text(displayName, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
+            Text(subtitle, style: const TextStyle(fontSize: 14, color: AppTheme.textSecondary)),
             const SizedBox(height: 32),
-            
+
             // Stats Row
             Row(
               children: [
@@ -72,7 +144,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: _launchUpgrade,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: AppTheme.primary,
@@ -86,11 +158,19 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 32),
 
             // Options
-            _buildOptionTile('Edit Profile', Icons.person_outline),
-            _buildOptionTile('My Notes', Icons.notes),
-            _buildOptionTile('Payment History', Icons.receipt_long),
-            _buildOptionTile('Settings', Icons.settings_outlined),
-            _buildOptionTile('Log Out', Icons.logout, isDestructive: true),
+            _buildOptionTile('Edit Profile', Icons.person_outline, onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfileScreen())).then((_) => _loadProfile());
+            }),
+            _buildOptionTile('My Notes', Icons.notes, onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const MyNotesScreen()));
+            }),
+            _buildOptionTile('Payment History', Icons.receipt_long, onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentHistoryScreen()));
+            }),
+            _buildOptionTile('Settings', Icons.settings_outlined, onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
+            }),
+            _buildOptionTile('Log Out', Icons.logout, isDestructive: true, onTap: _logout),
           ],
         ),
       ),
@@ -118,7 +198,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildOptionTile(String title, IconData icon, {bool isDestructive = false}) {
+  Widget _buildOptionTile(String title, IconData icon, {bool isDestructive = false, VoidCallback? onTap}) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       leading: Container(
@@ -129,15 +209,9 @@ class ProfileScreen extends StatelessWidget {
         ),
         child: Icon(icon, color: isDestructive ? Colors.red : AppTheme.primary),
       ),
-      title: Text(
-        title,
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
-          color: isDestructive ? Colors.red : AppTheme.textPrimary,
-        ),
-      ),
+      title: Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: isDestructive ? Colors.red : AppTheme.textPrimary)),
       trailing: const Icon(Icons.chevron_right, color: AppTheme.textSecondary),
-      onTap: () {},
+      onTap: onTap,
     );
   }
 }
