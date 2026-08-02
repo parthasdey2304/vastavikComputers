@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../../domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -27,6 +29,30 @@ class AuthRepositoryImpl implements AuthRepository {
       email: email,
       password: password,
     );
+  }
+
+  @override
+  Future<UserCredential> signInWithGoogle() async {
+    // For Web and Windows, Firebase Auth handles the OAuth flow directly
+    if (kIsWeb) {
+      return await _firebaseAuth.signInWithPopup(GoogleAuthProvider());
+    } else if (defaultTargetPlatform == TargetPlatform.windows || defaultTargetPlatform == TargetPlatform.macOS || defaultTargetPlatform == TargetPlatform.linux) {
+      return await _firebaseAuth.signInWithProvider(GoogleAuthProvider());
+    } else {
+      // For iOS and Android, use the native google_sign_in plugin
+      final GoogleSignInAccount? googleUser = await GoogleSignIn.instance.authenticate();
+
+      if (googleUser != null) {
+        final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+        final GoogleSignInClientAuthorization? authz = await googleUser.authorizationClient.authorizationForScopes([]);
+        final OAuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: authz?.accessToken,
+          idToken: googleAuth.idToken,
+        );
+        return await _firebaseAuth.signInWithCredential(credential);
+      }
+      throw Exception('Google Sign-In aborted by user');
+    }
   }
 
   @override

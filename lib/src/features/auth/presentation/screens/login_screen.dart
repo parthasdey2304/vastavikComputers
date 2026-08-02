@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../providers/auth_provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -36,10 +38,83 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (mounted) {
       final authState = ref.read(authControllerProvider);
       if (authState.hasError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authState.error.toString())),
+        String errorMessage = authState.error.toString();
+        if (errorMessage.contains('] ')) {
+          errorMessage = errorMessage.split('] ').last;
+        }
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: const Row(
+              children: [
+                Icon(Icons.cancel, color: Colors.red, size: 28),
+                SizedBox(width: 8),
+                Text('Error'),
+              ],
+            ),
+            content: Text(errorMessage),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
         );
       } else {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null && user.metadata.creationTime != null && user.metadata.lastSignInTime != null) {
+          final diff = user.metadata.lastSignInTime!.difference(user.metadata.creationTime!);
+          if (diff.inSeconds < 5) {
+            context.go('/welcome');
+            return;
+          }
+        }
+        context.go('/home');
+      }
+    }
+  }
+
+  Future<void> _loginWithGoogle() async {
+    await ref.read(authControllerProvider.notifier).signInWithGoogle();
+    
+    if (mounted) {
+      final authState = ref.read(authControllerProvider);
+      if (authState.hasError) {
+        String errorMessage = authState.error.toString();
+        if (errorMessage.contains('] ')) {
+          errorMessage = errorMessage.split('] ').last;
+        }
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: const Row(
+              children: [
+                Icon(Icons.cancel, color: Colors.red, size: 28),
+                SizedBox(width: 8),
+                Text('Error'),
+              ],
+            ),
+            content: Text(errorMessage),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      } else {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null && user.metadata.creationTime != null && user.metadata.lastSignInTime != null) {
+          final diff = user.metadata.lastSignInTime!.difference(user.metadata.creationTime!);
+          if (diff.inSeconds < 5) {
+            context.go('/welcome');
+            return;
+          }
+        }
         context.go('/home');
       }
     }
@@ -153,10 +228,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 
                 // Google Sign In Button
                 OutlinedButton.icon(
-                  onPressed: () {
-                    // TODO: Implement Google Sign In
-                  },
-                  icon: const Icon(Icons.g_mobiledata, size: 32),
+                  onPressed: ref.watch(authControllerProvider).isLoading ? null : _loginWithGoogle,
+                  icon: SvgPicture.asset('assets/images/google_logo.svg', height: 24, width: 24),
                   label: const Text('Continue with Google'),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 48),

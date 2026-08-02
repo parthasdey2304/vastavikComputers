@@ -181,7 +181,7 @@ class _UserSetupScreenState extends State<UserSetupScreen> {
                   ),
                   child: _isSaving
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Get Started', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      : const Text('Save changes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(height: 24),
