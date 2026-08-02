@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:markdown/markdown.dart' as md;
+import 'dart:convert';
 import '../../../../core/config/app_config.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../widgets/interactive_quiz_widget.dart';
 
 class ChatMessage {
   final String text;
@@ -20,14 +25,44 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _textScrollController = ScrollController();
+  final ScrollController _chatScrollController = ScrollController();
   final List<ChatMessage> _messages = [
-    ChatMessage('Hello Parth! I am your AI assistant. How can I help you with your coding today?', false),
+    ChatMessage('Hello! I am Vastavik Bot. How can I assist you today?', false),
   ];
   bool _isLoading = false;
+  ChatSession? _chatSession;
+  bool _showScrollToBottom = false;
   
   final SpeechToText _speechToText = SpeechToText();
   bool _speechEnabled = false;
   String _previousText = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _chatScrollController.addListener(() {
+      if (_chatScrollController.hasClients) {
+        final maxScroll = _chatScrollController.position.maxScrollExtent;
+        final currentScroll = _chatScrollController.offset;
+        final shouldShow = maxScroll - currentScroll > 200;
+        if (_showScrollToBottom != shouldShow) {
+          setState(() {
+            _showScrollToBottom = shouldShow;
+          });
+        }
+      }
+    });
+  }
+
+  void _scrollToBottom() {
+    if (_chatScrollController.hasClients) {
+      _chatScrollController.animateTo(
+        _chatScrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
 
   void _toggleListening() async {
     if (_speechToText.isListening) {
@@ -80,28 +115,38 @@ class _ChatScreenState extends State<ChatScreen> {
     _controller.clear();
 
     try {
-      final apiKey = AppConfig.geminiApiKey;
-      if (apiKey.isEmpty) {
-        setState(() {
-          _messages.add(ChatMessage('API Key not found. Please provide GEMINI_API_KEY as a build argument.', false));
-        });
-        return;
+      if (_chatSession == null) {
+        final apiKey = AppConfig.geminiApiKey;
+        if (apiKey.isEmpty) {
+          setState(() {
+            _messages.add(ChatMessage('API Key not found. Please provide GEMINI_API_KEY as a build argument.', false));
+          });
+          return;
+        }
+        
+        final model = GenerativeModel(
+          model: 'gemini-3.6-flash',
+          apiKey: apiKey,
+          systemInstruction: Content.system('You are Vastavik Bot, an AI coding assistant powered by the Kimi K3, designed for kids in ICSE schools. Keep your explanations simple, educational, and age-appropriate. If asked what model or version you are running, you must strictly state that you are Kimi K3.\n\nCRITICAL INSTRUCTION: If the user asks for a quiz, you MUST output the quiz ONLY as a JSON block wrapped in ```json ... ``` with the following structure: {"type": "quiz", "title": "Quiz Title", "questions": [{"question": "...", "options": ["A", "B", "C", "D"], "answerIndex": 0}]}. Do not add any text before or after the JSON block.'),
+        );
+        _chatSession = model.startChat();
       }
       
-      final model = GenerativeModel(
-        model: 'gemini-3.6-flash',
-        apiKey: apiKey,
-      );
-      
-      final content = [Content.text(text)];
-      final response = await model.generateContent(content);
+      final content = Content.text(text);
+      final response = await _chatSession!.sendMessage(content);
       
       setState(() {
         _messages.add(ChatMessage(response.text ?? 'No response', false));
       });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToBottom();
+      });
     } catch (e) {
       setState(() {
         _messages.add(ChatMessage('Gemini AI Error: Make sure your API key is correct and valid.\n\nDetails: $e', false));
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToBottom();
       });
     } finally {
       setState(() => _isLoading = false);
@@ -115,39 +160,60 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 1,
-        title: Row(
-          children: [
-            const Icon(Icons.smart_toy, color: AppTheme.primary),
-            const SizedBox(width: 8),
-            const Text('Vastavik Bot', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
-            const Spacer(),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(color: AppTheme.accent.withAlpha(30), borderRadius: BorderRadius.circular(8)),
-              child: const Text('Gemini 3.6 Flash', style: TextStyle(color: AppTheme.accent, fontSize: 10, fontWeight: FontWeight.bold)),
-            ),
-          ],
+        title: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              const Icon(Icons.smart_toy, color: AppTheme.primary),
+              const SizedBox(width: 8),
+              const Text('Vastavik Bot', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
+              const SizedBox(width: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(color: AppTheme.accent.withAlpha(30), borderRadius: BorderRadius.circular(8)),
+                child: const Text('Kimi K3', style: TextStyle(color: AppTheme.accent, fontSize: 10, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
         ),
       ),
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(20),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final msg = _messages[index];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: msg.isUser ? _buildUserMessage(context, msg.text) : _buildBotMessage(context, msg.text),
-                );
-              },
+            child: Stack(
+              children: [
+                ListView.builder(
+                  controller: _chatScrollController,
+                  padding: const EdgeInsets.all(20),
+                  itemCount: _messages.length,
+                  itemBuilder: (context, index) {
+                    final msg = _messages[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: msg.isUser ? _buildUserMessage(context, msg.text) : _buildBotMessage(context, msg.text),
+                    );
+                  },
+                ),
+                if (_showScrollToBottom)
+                  Positioned(
+                    bottom: 16,
+                    right: 16,
+                    child: FloatingActionButton(
+                      mini: true,
+                      onPressed: _scrollToBottom,
+                      backgroundColor: Colors.white,
+                      foregroundColor: AppTheme.primary,
+                      elevation: 4,
+                      child: const Icon(Icons.keyboard_arrow_down),
+                    ),
+                  ),
+              ],
             ),
           ),
           if (_isLoading)
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: CircularProgressIndicator(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+              child: _buildBotMessage(context, '*Developing...*'),
             ),
           _buildQuickActions(),
           _buildMessageInput(),
@@ -179,7 +245,15 @@ class _ChatScreenState extends State<ChatScreen> {
                 bottomRight: Radius.circular(16),
               ),
             ),
-            child: Text(text, style: const TextStyle(color: AppTheme.textPrimary)),
+            child: MarkdownBody(
+              data: text,
+              builders: {
+                'code': CodeElementBuilder(context),
+              },
+              styleSheet: MarkdownStyleSheet(
+                p: const TextStyle(color: AppTheme.textPrimary),
+              ),
+            ),
           ),
         ),
       ],
@@ -205,12 +279,6 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             child: Text(text, style: const TextStyle(color: Colors.white)),
           ),
-        ),
-        const SizedBox(width: 12),
-        const CircleAvatar(
-          radius: 16,
-          backgroundColor: AppTheme.surface,
-          backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=11'),
         ),
       ],
     );
@@ -296,6 +364,81 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class CodeElementBuilder extends MarkdownElementBuilder {
+  final BuildContext context;
+  CodeElementBuilder(this.context);
+
+  @override
+  Widget? visitElementAfter(md.Element element, TextStyle? preferredStyle) {
+    final codeText = element.textContent;
+    final isBlock = codeText.contains('\n');
+
+    if (isBlock) {
+      try {
+        final decoded = jsonDecode(codeText);
+        if (decoded is Map<String, dynamic> && decoded['type'] == 'quiz') {
+          return InteractiveQuizWidget(quizData: decoded);
+        }
+      } catch (e) {
+        // Not a JSON quiz, just render as normal code block
+      }
+    }
+
+    if (!isBlock) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Text(codeText, style: const TextStyle(fontFamily: 'monospace', fontSize: 13)),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 24.0),
+            child: SelectableText(
+              codeText,
+              style: const TextStyle(fontFamily: 'monospace', fontSize: 13, color: Colors.black87),
+            ),
+          ),
+          Positioned(
+            right: 0,
+            top: 0,
+            child: InkWell(
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: codeText));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Code copied to clipboard!'), duration: Duration(seconds: 1)),
+                );
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(Icons.copy, size: 14, color: Colors.grey),
+                  SizedBox(width: 4),
+                  Text('Copy', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

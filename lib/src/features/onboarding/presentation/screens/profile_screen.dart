@@ -24,7 +24,7 @@ class ProfileScreen extends StatelessWidget {
             const CircleAvatar(
               radius: 50,
               backgroundColor: AppTheme.surface,
-              backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=11'),
+              child: Icon(Icons.person, size: 50, color: Colors.white),
             ),
             const SizedBox(height: 16),
             const Text(

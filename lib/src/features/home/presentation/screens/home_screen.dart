@@ -111,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: const CircleAvatar(
                     radius: 24,
                     backgroundColor: AppTheme.surface,
-                    backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=11'),
+                    child: Icon(Icons.person, color: Colors.white),
                   ),
                 ),
               ],

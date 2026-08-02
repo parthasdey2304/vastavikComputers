@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
+  file_saver
   firebase_auth
   firebase_core
   speech_to_text_windows
