@@ -125,7 +125,7 @@ class _ChatScreenState extends State<ChatScreen> {
         }
         
         final model = GenerativeModel(
-          model: 'gemini-3.6-flash',
+          model: 'gemini-3.5-flash',
           apiKey: apiKey,
           systemInstruction: Content.system('You are Vastavik Bot, an AI coding assistant powered by the Kimi K3, designed for kids in ICSE schools. Keep your explanations simple, educational, and age-appropriate. If asked what model or version you are running, you must strictly state that you are Kimi K3.\n\nCRITICAL INSTRUCTION: If the user asks for a quiz, you MUST output the quiz ONLY as a JSON block wrapped in ```json ... ``` with the following structure: {"type": "quiz", "title": "Quiz Title", "questions": [{"question": "...", "options": ["A", "B", "C", "D"], "answerIndex": 0}]}. Do not add any text before or after the JSON block.'),
         );
@@ -185,8 +185,14 @@ class _ChatScreenState extends State<ChatScreen> {
                 ListView.builder(
                   controller: _chatScrollController,
                   padding: const EdgeInsets.all(20),
-                  itemCount: _messages.length,
+                  itemCount: _messages.length + (_isLoading ? 1 : 0),
                   itemBuilder: (context, index) {
+                    if (_isLoading && index == _messages.length) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: _buildBotMessage(context, '*Developing...*'),
+                      );
+                    }
                     final msg = _messages[index];
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 16),
@@ -210,11 +216,6 @@ class _ChatScreenState extends State<ChatScreen> {
               ],
             ),
           ),
-          if (_isLoading)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-              child: _buildBotMessage(context, '*Developing...*'),
-            ),
           _buildQuickActions(),
           _buildMessageInput(),
         ],
