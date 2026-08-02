@@ -26,17 +26,11 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
 
   Future<void> _signup() async {
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty || _nameController.text.isEmpty || _confirmPasswordController.text.isEmpty) return;
-    
-    if (_passwordController.text != _confirmPasswordController.text) {
-      // Show error
-      return;
-    }
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty || _nameController.text.isEmpty) return;
 
     final isNewUser = await ref.read(authControllerProvider.notifier).signUp(
       _emailController.text.trim(),
@@ -225,7 +219,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 
                 // Google Sign Up Button
                 OutlinedButton.icon(
-                  onPressed: ref.watch(authControllerProvider).isLoading ? null : _signupWithGoogle,
+                  onPressed: ref.watch(authControllerProvider).isLoading ? null : _signUpWithGoogle,
                   icon: SvgPicture.asset('assets/images/google_logo.svg', height: 24, width: 24),
                   label: const Text('Sign up with Google'),
                   style: OutlinedButton.styleFrom(

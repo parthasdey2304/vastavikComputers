@@ -59,6 +59,10 @@ dependencies:
   cloud_firestore: ^6.7.1
   no_screenshot: ^1.2.0
   printing: ^5.15.0
+  package_info_plus: ^10.2.1
+  path_provider: ^2.1.6
+  open_filex: ^4.7.0
+  permission_handler: ^13.0.0
 
 dev_dependencies:
   flutter_lints: ^6.0.0

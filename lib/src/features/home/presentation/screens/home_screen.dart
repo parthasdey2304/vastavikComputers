@@ -6,6 +6,7 @@ import '../../../practice/presentation/screens/practice_screen.dart';
 import '../../../ai_chat/presentation/screens/chat_screen.dart';
 import '../../../onboarding/presentation/screens/profile_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../../core/services/update_service.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -16,6 +17,75 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkForUpdates();
+  }
+
+  Future<void> _checkForUpdates() async {
+    final apkUrl = await UpdateService.checkForUpdate();
+    if (apkUrl != null && mounted) {
+      _showUpdateDialog(apkUrl);
+    }
+  }
+
+  void _showUpdateDialog(String apkUrl) {
+    bool isDownloading = false;
+    double progress = 0.0;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: const Text('Update Available!'),
+              content: isDownloading
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('Downloading update...'),
+                        const SizedBox(height: 16),
+                        LinearProgressIndicator(value: progress),
+                        const SizedBox(height: 8),
+                        Text('${(progress * 100).toStringAsFixed(1)}%'),
+                      ],
+                    )
+                  : const Text('A new version of vastavikComputers is available. Would you like to install it now?'),
+              actions: [
+                if (!isDownloading)
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Later'),
+                  ),
+                if (!isDownloading)
+                  ElevatedButton(
+                    onPressed: () async {
+                      setDialogState(() {
+                        isDownloading = true;
+                      });
+                      await UpdateService.downloadAndInstall(apkUrl, (p) {
+                        setDialogState(() {
+                          progress = p;
+                        });
+                      });
+                      if (mounted) {
+                        Navigator.of(context).pop();
+                      }
+                    },
+                    child: const Text('Update Now'),
+                  ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
