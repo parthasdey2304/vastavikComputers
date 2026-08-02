@@ -1,0 +1,132 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../../../../core/theme/app_theme.dart';
+
+class AccountDeletedScreen extends StatefulWidget {
+  const AccountDeletedScreen({super.key});
+
+  @override
+  State<AccountDeletedScreen> createState() => _AccountDeletedScreenState();
+}
+
+class _AccountDeletedScreenState extends State<AccountDeletedScreen> {
+  bool _isLoading = false;
+
+  final String _deletedIconSvg = '''
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <path fill="none" d="M0 0h24v24H0z"/>
+  <path fill="#EF4444" d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1.414-11.414L7.05 7.05 5.636 8.464l3.536 3.536-3.536 3.536 1.414 1.414 3.536-3.536 3.536 3.536 1.414-1.414-3.536-3.536 3.536-3.536-1.414-1.414-3.536 3.536z"/>
+</svg>
+''';
+
+  Future<void> _handleGoToSignUp() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      // 1. Permanently delete their Auth Credentials to finalize the lockout
+      await FirebaseAuth.instance.currentUser?.delete();
+    } catch (e) {
+      // If the token is too old or requires recent login, we might fail to delete.
+      // In that case, we forcefully sign out anyway.
+    } finally {
+      // 2. Sign out the local Firebase instance
+      await FirebaseAuth.instance.signOut();
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        context.go('/signup');
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppTheme.background,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(32),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.red.withOpacity(0.1),
+                      blurRadius: 24,
+                      offset: const Offset(0, 12),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    SvgPicture.string(
+                      _deletedIconSvg,
+                      height: 100,
+                      width: 100,
+                    ),
+                    const SizedBox(height: 32),
+                    const Text(
+                      'Account Removed',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Your data has been removed by the admin. You no longer have access to this application.',
+                      style: TextStyle(
+                        fontSize: 16,
+                        height: 1.5,
+                        color: AppTheme.textSecondary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              SizedBox(
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _handleGoToSignUp,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red.shade600,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 4,
+                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          'Head over to Sign Up',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                ),
+              ),
+              const SizedBox(height: 40),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

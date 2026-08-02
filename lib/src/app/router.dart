@@ -10,19 +10,30 @@ import '../features/video_lesson/presentation/screens/video_lesson_screen.dart';
 import '../features/admin/presentation/screens/admin_dashboard.dart';
 import '../features/onboarding/presentation/screens/user_setup_screen.dart';
 import '../features/onboarding/presentation/screens/welcome_screen.dart';
+import '../features/auth/presentation/screens/account_deleted_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateChangesProvider);
+  final userProfileState = ref.watch(userProfileStreamProvider);
 
   return GoRouter(
     initialLocation: '/home',
     redirect: (context, state) {
       final isLoggedIn = authState.value != null;
       final isAuthRoute = state.matchedLocation == '/login' || state.matchedLocation == '/signup';
+      final isDeletedRoute = state.matchedLocation == '/account-deleted';
 
       if (authState.isLoading) return null;
 
-      if (!isLoggedIn && !isAuthRoute) {
+      // Check if user document is deleted
+      if (isLoggedIn && userProfileState.hasValue) {
+        final profileData = userProfileState.value;
+        if (profileData != null && profileData['_deleted'] == true && !isDeletedRoute) {
+          return '/account-deleted';
+        }
+      }
+
+      if (!isLoggedIn && !isAuthRoute && !isDeletedRoute) {
         return '/login';
       }
 
@@ -60,6 +71,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/welcome',
         builder: (context, state) => const WelcomeScreen(),
+      ),
+      GoRoute(
+        path: '/account-deleted',
+        builder: (context, state) => const AccountDeletedScreen(),
       ),
     ],
   );
