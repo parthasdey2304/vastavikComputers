@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:speech_to_text/speech_to_text.dart';
+import '../../../../core/config/app_config.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class ChatMessage {
@@ -17,10 +19,56 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
+  final ScrollController _textScrollController = ScrollController();
   final List<ChatMessage> _messages = [
     ChatMessage('Hello Parth! I am your AI assistant. How can I help you with your coding today?', false),
   ];
   bool _isLoading = false;
+  
+  final SpeechToText _speechToText = SpeechToText();
+  bool _speechEnabled = false;
+  String _previousText = '';
+
+  void _toggleListening() async {
+    if (_speechToText.isListening) {
+      await _speechToText.stop();
+      setState(() {});
+    } else {
+      if (!_speechEnabled) {
+        _speechEnabled = await _speechToText.initialize(
+          onStatus: (status) => setState(() {}),
+          onError: (errorNotification) => setState(() {}),
+        );
+        if (!_speechEnabled) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Speech recognition not available.')));
+          }
+          return;
+        }
+      }
+      
+      _previousText = _controller.text;
+      await _speechToText.listen(onResult: _onSpeechResult);
+      setState(() {});
+    }
+  }
+
+  void _onSpeechResult(result) {
+    setState(() {
+      final newText = _previousText.isEmpty ? result.recognizedWords : '$_previousText ${result.recognizedWords}';
+      _controller.text = newText;
+      _controller.selection = TextSelection.fromPosition(TextPosition(offset: _controller.text.length));
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_textScrollController.hasClients) {
+        _textScrollController.animateTo(
+          _textScrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
 
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
@@ -32,16 +80,16 @@ class _ChatScreenState extends State<ChatScreen> {
     _controller.clear();
 
     try {
-      final apiKey = const String.fromEnvironment('GEMINI_API_KEY', defaultValue: 'YOUR_API_KEY');
-      if (apiKey == 'YOUR_API_KEY') {
+      final apiKey = AppConfig.geminiApiKey;
+      if (apiKey.isEmpty) {
         setState(() {
-          _messages.add(ChatMessage('API Key not found. Please provide GEMINI_API_KEY during build or replace it in the code.', false));
+          _messages.add(ChatMessage('API Key not found. Please provide GEMINI_API_KEY as a build argument.', false));
         });
         return;
       }
       
       final model = GenerativeModel(
-        model: 'gemini-1.5-flash',
+        model: 'gemini-3.6-flash',
         apiKey: apiKey,
       );
       
@@ -91,7 +139,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 final msg = _messages[index];
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16),
-                  child: msg.isUser ? _buildUserMessage(msg.text) : _buildBotMessage(msg.text),
+                  child: msg.isUser ? _buildUserMessage(context, msg.text) : _buildBotMessage(context, msg.text),
                 );
               },
             ),
@@ -108,7 +156,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildBotMessage(String text) {
+  Widget _buildBotMessage(BuildContext context, String text) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -118,12 +166,14 @@ class _ChatScreenState extends State<ChatScreen> {
           child: Icon(Icons.smart_toy, size: 16, color: Colors.white),
         ),
         const SizedBox(width: 12),
-        Expanded(
+        Flexible(
           child: Container(
+            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.85),
             padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.only(
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: const BorderRadius.only(
                 topRight: Radius.circular(16),
                 bottomLeft: Radius.circular(16),
                 bottomRight: Radius.circular(16),
@@ -136,13 +186,14 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildUserMessage(String text) {
+  Widget _buildUserMessage(BuildContext context, String text) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Expanded(
+        Flexible(
           child: Container(
+            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.85),
             padding: const EdgeInsets.all(16),
             decoration: const BoxDecoration(
               color: AppTheme.primary,
@@ -206,17 +257,35 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(color: AppTheme.surface, borderRadius: BorderRadius.circular(24)),
-                child: TextField(
-                  controller: _controller,
-                  decoration: const InputDecoration(
-                    hintText: 'Ask anything...',
-                    border: InputBorder.none,
+                child: Scrollbar(
+                  controller: _textScrollController,
+                  child: TextField(
+                    controller: _controller,
+                    scrollController: _textScrollController,
+                    minLines: 1,
+                    maxLines: 5,
+                    decoration: const InputDecoration(
+                      hintText: 'Ask anything...',
+                      border: InputBorder.none,
+                    ),
+                    onSubmitted: _sendMessage,
                   ),
-                  onSubmitted: _sendMessage,
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
+            CircleAvatar(
+              radius: 24,
+              backgroundColor: _speechToText.isListening ? Colors.red.withAlpha(50) : AppTheme.primary.withAlpha(20),
+              child: IconButton(
+                icon: Icon(
+                  _speechToText.isListening ? Icons.mic_off : Icons.mic,
+                  color: _speechToText.isListening ? Colors.red : AppTheme.primary,
+                ),
+                onPressed: _toggleListening,
+              ),
+            ),
+            const SizedBox(width: 8),
             CircleAvatar(
               radius: 24,
               backgroundColor: AppTheme.primary,

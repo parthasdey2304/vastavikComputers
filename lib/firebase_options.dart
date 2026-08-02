@@ -39,31 +39,31 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyA-MOCK-API-KEY-FOR-WEB',
-    appId: '1:123456789:web:abcdef',
-    messagingSenderId: '123456789',
-    projectId: 'vastavik-mock-project',
-    authDomain: 'vastavik-mock-project.firebaseapp.com',
-    storageBucket: 'vastavik-mock-project.appspot.com',
+    apiKey: 'AIzaSyDMAAE4J9i0hE6CrLpG3RXCWulWjBLoyXk',
+    appId: '1:1088021463056:web:6ebaed5dd2bb412203ca95',
+    messagingSenderId: '1088021463056',
+    projectId: 'vastavik-computers',
+    authDomain: 'vastavik-computers.firebaseapp.com',
+    storageBucket: 'vastavik-computers.firebasestorage.app',
+    measurementId: 'G-CXVMH59V0S',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyA-MOCK-API-KEY-FOR-ANDROID',
-    appId: '1:123456789:android:abcdef',
-    messagingSenderId: '123456789',
-    projectId: 'vastavik-mock-project',
-    storageBucket: 'vastavik-mock-project.appspot.com',
+    apiKey: 'AIzaSyBI2_Fpcdy3UNNDdJ2q4qb3OYwuY_mx0oo',
+    appId: '1:1088021463056:android:06b0ac472699d45b03ca95',
+    messagingSenderId: '1088021463056',
+    projectId: 'vastavik-computers',
+    storageBucket: 'vastavik-computers.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyA-MOCK-API-KEY-FOR-IOS',
-    appId: '1:123456789:ios:abcdef',
-    messagingSenderId: '123456789',
-    projectId: 'vastavik-mock-project',
-    storageBucket: 'vastavik-mock-project.appspot.com',
-    iosBundleId: 'com.example.vastavikComputers',
+    apiKey: 'AIzaSyAaiya3XEUAF6wiOmW_GfqYkCAMNwv3_jw',
+    appId: '1:1088021463056:ios:6160a23fb4f948fd03ca95',
+    messagingSenderId: '1088021463056',
+    projectId: 'vastavik-computers',
+    storageBucket: 'vastavik-computers.firebasestorage.app',
+    iosClientId: '1088021463056-7ct94uassgjvcvdjmfsstk9tqa7rf5c5.apps.googleusercontent.com',
+    iosBundleId: 'com.example.vastavikComputer',
   );
-
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyA-MOCK-API-KEY-FOR-MACOS',
     appId: '1:123456789:ios:abcdef',
