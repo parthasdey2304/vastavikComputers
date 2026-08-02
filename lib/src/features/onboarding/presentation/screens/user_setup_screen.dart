@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/models/user_model.dart';
 import '../../../../core/services/firestore_service.dart';
+import '../../../../core/widgets/responsive_wrapper.dart';
 
 class UserSetupScreen extends StatefulWidget {
   const UserSetupScreen({super.key});
@@ -89,15 +90,19 @@ class _UserSetupScreenState extends State<UserSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text('Complete Your Profile', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
+    return PopScope(
+      canPop: false, // Cannot skip profile setup
+      child: Scaffold(
+        backgroundColor: AppTheme.background,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          automaticallyImplyLeading: false, // No back button
+          title: const Text('Complete Your Profile', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
+          centerTitle: true,
+        ),
+      body: ResponsiveWrapper(
+        child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
           key: _formKey,
@@ -116,6 +121,18 @@ class _UserSetupScreenState extends State<UserSetupScreen> {
                 child: Text('Tell us about yourself!', style: TextStyle(fontSize: 16, color: AppTheme.textSecondary)),
               ),
               const SizedBox(height: 32),
+
+              // Email
+              _buildLabel('Email Address'),
+              const SizedBox(height: 8),
+              TextFormField(
+                initialValue: FirebaseAuth.instance.currentUser?.email ?? '',
+                readOnly: true,
+                decoration: _inputDecoration('Email Address', Icons.email_outlined).copyWith(
+                  fillColor: AppTheme.surface,
+                ),
+              ),
+              const SizedBox(height: 20),
 
               // Name
               _buildLabel('Full Name'),
@@ -187,7 +204,9 @@ class _UserSetupScreenState extends State<UserSetupScreen> {
               const SizedBox(height: 24),
             ],
           ),
+          ),
         ),
+      ),
       ),
     );
   }

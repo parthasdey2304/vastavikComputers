@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <!-- Background gradient circle -->
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#5b4dff;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#00b4d8;stop-opacity:0.1"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e1b4b"/>
+      <stop offset="100%" style="stop-color:#312e81"/>
+    </linearGradient>
+    <linearGradient id="btn" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#5b4dff"/>
+      <stop offset="100%" style="stop-color:#4338ca"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Decorative circles -->
+  <circle cx="50" cy="50" r="40" fill="url(#bg)" opacity="0.8"/>
+  <circle cx="360" cy="260" r="50" fill="url(#bg)" opacity="0.6"/>
+  <circle cx="380" cy="60" r="25" fill="#5b4dff" opacity="0.08"/>
+
+  <!-- Laptop body -->
+  <rect x="80" y="60" width="240" height="160" rx="12" ry="12" fill="url(#screen)"/>
+  <!-- Laptop screen bezel -->
+  <rect x="90" y="70" width="220" height="140" rx="6" ry="6" fill="#0f0a2e"/>
+  <!-- Laptop base -->
+  <rect x="60" y="220" width="280" height="14" rx="7" ry="7" fill="#3730a3"/>
+  <rect x="140" y="234" width="120" height="8" rx="4" ry="4" fill="#4338ca"/>
+
+  <!-- Code lines on screen -->
+  <rect x="105" y="88" width="60" height="7" rx="3" fill="#5b4dff" opacity="0.9"/>
+  <rect x="105" y="103" width="100" height="6" rx="3" fill="#00b4d8" opacity="0.7"/>
+  <rect x="115" y="117" width="80" height="6" rx="3" fill="#7c3aed" opacity="0.7"/>
+  <rect x="115" y="131" width="60" height="6" rx="3" fill="#10b981" opacity="0.7"/>
+  <rect x="105" y="145" width="90" height="6" rx="3" fill="#f59e0b" opacity="0.7"/>
+  <rect x="105" y="159" width="70" height="6" rx="3" fill="#5b4dff" opacity="0.6"/>
+  <rect x="115" y="173" width="50" height="6" rx="3" fill="#00b4d8" opacity="0.5"/>
+
+  <!-- Cursor blink -->
+  <rect x="172" y="173" width="3" height="8" rx="1" fill="#ffffff" opacity="0.9"/>
+
+  <!-- Floating badges -->
+  <rect x="255" y="82" width="48" height="22" rx="11" fill="url(#btn)"/>
+  <text x="279" y="97" font-family="monospace" font-size="9" fill="white" text-anchor="middle">Python</text>
+
+  <rect x="255" y="112" width="42" height="22" rx="11" fill="#0d9488"/>
+  <text x="276" y="127" font-family="monospace" font-size="9" fill="white" text-anchor="middle">Java</text>
+
+  <rect x="255" y="142" width="42" height="22" rx="11" fill="#7c3aed"/>
+  <text x="276" y="157" font-family="monospace" font-size="9" fill="white" text-anchor="middle">C / C++</text>
+
+  <!-- Stars -->
+  <circle cx="30" cy="150" r="3" fill="#5b4dff" opacity="0.5"/>
+  <circle cx="370" cy="120" r="4" fill="#00b4d8" opacity="0.4"/>
+  <circle cx="55" cy="240" r="2.5" fill="#f59e0b" opacity="0.6"/>
+  <circle cx="345" cy="200" r="2" fill="#10b981" opacity="0.5"/>
+</svg>

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/responsive_wrapper.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -21,15 +23,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     );
-
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeIn),
     );
-
-    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
     );
-
     _controller.forward();
   }
 
@@ -41,97 +40,103 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.background,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Spacer(),
-              FadeTransition(
+    return PopScope(
+      canPop: false, // Cannot go back from welcome screen
+      child: Scaffold(
+        backgroundColor: AppTheme.background,
+        body: SafeArea(
+          child: ResponsiveWrapper(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 24),
+              child: FadeTransition(
                 opacity: _fadeAnimation,
                 child: SlideTransition(
                   position: _slideAnimation,
-                  child: Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: AppTheme.surface,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primary.withOpacity(0.1),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Spacer(),
+
+                      // SVG Illustration
+                      SvgPicture.asset(
+                        'assets/images/welcome_illustration.svg',
+                        height: 220,
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Headline
+                      Text(
+                        'Welcome to Vastavik Computers! 🚀',
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
                         ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        const Icon(Icons.code, size: 80, color: AppTheme.primary),
-                        const SizedBox(height: 24),
-                        const Text(
-                          'Welcome to the Future!',
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.textPrimary,
-                          ),
-                          textAlign: TextAlign.center,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Computer Science is not just about writing code — it\'s about learning how to think, solve problems, and build the future.\n\nEvery great innovation starts with a single line of code. Are you ready to begin your journey?',
+                        style: TextStyle(
+                          fontSize: 15,
+                          height: 1.6,
+                          color: AppTheme.textSecondary,
                         ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Computer Science is not just about writing code. It is about learning how to think, solve complex problems, and build the future.\n\nEvery great innovation starts with a single line of code. Are you ready to begin your journey?',
-                          style: TextStyle(
-                            fontSize: 16,
-                            height: 1.5,
-                            color: AppTheme.textSecondary,
-                          ),
-                          textAlign: TextAlign.center,
+                        textAlign: TextAlign.center,
+                      ),
+
+                      const Spacer(),
+
+                      // Arrow button → goes to profile setup
+                      Center(
+                        child: Column(
+                          children: [
+                            Text(
+                              'Set up your profile to continue',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: AppTheme.textSecondary,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            InkWell(
+                              onTap: () => context.go('/setup'),
+                              borderRadius: BorderRadius.circular(100),
+                              child: Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: const LinearGradient(
+                                    colors: [AppTheme.primary, Color(0xFF5C33F6)],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppTheme.primary.withOpacity(0.35),
+                                      blurRadius: 18,
+                                      spreadRadius: 2,
+                                      offset: const Offset(0, 6),
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.arrow_forward_rounded,
+                                  color: Colors.white,
+                                  size: 40,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 40),
+                    ],
                   ),
                 ),
               ),
-              const Spacer(),
-              FadeTransition(
-                opacity: _fadeAnimation,
-                child: Center(
-                  child: InkWell(
-                    onTap: () => context.go('/setup'),
-                    borderRadius: BorderRadius.circular(100),
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: const LinearGradient(
-                          colors: [AppTheme.primary, Color(0xFF5C33F6)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.primary.withOpacity(0.3),
-                            blurRadius: 15,
-                            spreadRadius: 2,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.arrow_forward_rounded,
-                        color: Colors.white,
-                        size: 40,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40),
-            ],
+            ),
           ),
         ),
       ),

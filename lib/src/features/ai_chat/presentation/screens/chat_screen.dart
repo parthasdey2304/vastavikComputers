@@ -8,6 +8,7 @@ import 'dart:convert';
 import '../../../../core/config/app_config.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../widgets/interactive_quiz_widget.dart';
+import '../../../../core/widgets/responsive_wrapper.dart';
 
 class ChatMessage {
   final String text;
@@ -177,7 +178,8 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ),
       ),
-      body: Column(
+      body: ResponsiveWrapper(
+        child: Column(
         children: [
           Expanded(
             child: Stack(
@@ -219,6 +221,7 @@ class _ChatScreenState extends State<ChatScreen> {
           _buildQuickActions(),
           _buildMessageInput(),
         ],
+        ),
       ),
     );
   }

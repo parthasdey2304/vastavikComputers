@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/models/user_model.dart';
 import '../../../../core/services/firestore_service.dart';
+import '../../../../core/widgets/responsive_wrapper.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -118,13 +119,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
+          : ResponsiveWrapper(
+              child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    _buildLabel('Email Address'),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      initialValue: FirebaseAuth.instance.currentUser?.email ?? '',
+                      readOnly: true,
+                      decoration: _inputDecoration('Email Address', Icons.email_outlined).copyWith(
+                        fillColor: AppTheme.surface,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
                     _buildLabel('Full Name'),
                     const SizedBox(height: 8),
                     TextFormField(
@@ -180,6 +192,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
               ),
             ),
+          ),
     );
   }
 

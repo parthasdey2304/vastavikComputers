@@ -20,10 +20,7 @@ final userProfileStreamProvider = StreamProvider<Map<String, dynamic>?>((ref) {
   }
   // Import cloud_firestore locally or ensure it's imported at the top
   return FirebaseFirestore.instance.collection('users').doc(user.uid).snapshots().map((snapshot) {
-    if (snapshot.exists) {
-      return snapshot.data();
-    }
-    return {'_deleted': true};
+    return snapshot.data();
   });
 });
 

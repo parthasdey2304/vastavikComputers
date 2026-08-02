@@ -5,6 +5,7 @@ import '../providers/auth_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/responsive_wrapper.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
   const SignupScreen({super.key});
@@ -126,7 +127,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         ),
       ),
       body: SafeArea(
-        child: Center(
+        child: ResponsiveWrapper(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Column(

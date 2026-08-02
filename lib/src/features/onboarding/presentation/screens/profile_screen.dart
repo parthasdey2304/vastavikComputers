@@ -8,6 +8,7 @@ import 'edit_profile_screen.dart';
 import 'my_notes_screen.dart';
 import 'payment_history_screen.dart';
 import 'settings_screen.dart';
+import '../../../../core/widgets/responsive_wrapper.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -95,7 +96,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: const Text('My Profile', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
+      body: ResponsiveWrapper(
+        child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
@@ -172,6 +174,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             }),
             _buildOptionTile('Log Out', Icons.logout, isDestructive: true, onTap: _logout),
           ],
+        ),
         ),
       ),
     );

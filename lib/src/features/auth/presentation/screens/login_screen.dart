@@ -5,6 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../providers/auth_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/responsive_wrapper.dart';
+import '../../../../core/widgets/responsive_wrapper.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -116,7 +118,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Center(
+        child: ResponsiveWrapper(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -186,7 +188,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      // TODO: Implement forgot password
+                      context.go('/forgot-password');
                     },
                     child: const Text('Forgot Password?'),
                   ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/responsive_wrapper.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -41,7 +42,8 @@ class SettingsScreen extends StatelessWidget {
         title: const Text('Settings', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
         iconTheme: const IconThemeData(color: AppTheme.textPrimary),
       ),
-      body: ListView(
+      body: ResponsiveWrapper(
+        child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           _buildSection('Account', [
@@ -78,6 +80,7 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
         ],
+        ),
       ),
     );
   }

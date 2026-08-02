@@ -7,6 +7,8 @@ import '../../../ai_chat/presentation/screens/chat_screen.dart';
 import '../../../onboarding/presentation/screens/profile_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../core/services/update_service.dart';
+import '../../../../core/widgets/responsive_wrapper.dart';
+import '../../../learning_path/presentation/screens/learning_path_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -17,6 +19,13 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -95,6 +104,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         index: _selectedIndex,
         children: [
           _buildHomeTab(),
+          const LearningPathScreen(),
           const PracticeScreen(),
           const ChatScreen(),
           const ProfileScreen(),
@@ -106,7 +116,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildHomeTab() {
     return SafeArea(
-      child: CustomScrollView(
+      child: ResponsiveWrapper(
+        child: CustomScrollView(
         slivers: [
           _buildHeader(),
           SliverPadding(
@@ -129,6 +140,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
         ],
+        ),
       ),
     );
   }
@@ -198,8 +210,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 color: AppTheme.surface,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const TextField(
-                decoration: InputDecoration(
+              child: TextField(
+                controller: _searchController,
+                onSubmitted: (val) {
+                  if (val.trim().isNotEmpty) {
+                    context.push('/search?q=${Uri.encodeComponent(val.trim())}');
+                    _searchController.clear();
+                  }
+                },
+                decoration: const InputDecoration(
                   hintText: 'Search courses, topics...',
                   border: InputBorder.none,
                   icon: Icon(Icons.search, color: AppTheme.textSecondary),
@@ -483,9 +502,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildNavItem(0, Icons.home_rounded, 'Home'),
-              _buildNavItem(1, Icons.assignment_rounded, 'Practice'),
-              _buildNavItem(2, Icons.smart_toy_rounded, 'AI Chat'),
-              _buildNavItem(3, Icons.person_rounded, 'Profile'),
+              _buildNavItem(1, Icons.map_rounded, 'Learn'),
+              _buildNavItem(2, Icons.assignment_rounded, 'Practice'),
+              _buildNavItem(3, Icons.smart_toy_rounded, 'AI Chat'),
+              _buildNavItem(4, Icons.person_rounded, 'Profile'),
             ],
           ),
         ),
