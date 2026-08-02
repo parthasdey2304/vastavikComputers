@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/signup_screen.dart';
@@ -29,7 +30,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (isLoggedIn && userProfileState.hasValue) {
         final profileData = userProfileState.value;
         if (profileData != null && profileData['_deleted'] == true && !isDeletedRoute) {
-          return '/account-deleted';
+          final user = FirebaseAuth.instance.currentUser;
+          final isNewUser = user != null && 
+              user.metadata.creationTime != null && 
+              user.metadata.lastSignInTime != null &&
+              user.metadata.lastSignInTime!.difference(user.metadata.creationTime!).inSeconds < 5;
+              
+          if (!isNewUser) {
+            return '/account-deleted';
+          }
         }
       }
 

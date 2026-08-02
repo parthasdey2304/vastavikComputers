@@ -4,14 +4,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/theme/app_theme.dart';
 
-class AccountDeletedScreen extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/auth_provider.dart';
+
+class AccountDeletedScreen extends ConsumerStatefulWidget {
   const AccountDeletedScreen({super.key});
 
   @override
-  State<AccountDeletedScreen> createState() => _AccountDeletedScreenState();
+  ConsumerState<AccountDeletedScreen> createState() => _AccountDeletedScreenState();
 }
 
-class _AccountDeletedScreenState extends State<AccountDeletedScreen> {
+class _AccountDeletedScreenState extends ConsumerState<AccountDeletedScreen> {
   bool _isLoading = false;
 
   final String _deletedIconSvg = '''
@@ -29,11 +32,10 @@ class _AccountDeletedScreenState extends State<AccountDeletedScreen> {
       // 1. Permanently delete their Auth Credentials to finalize the lockout
       await FirebaseAuth.instance.currentUser?.delete();
     } catch (e) {
-      // If the token is too old or requires recent login, we might fail to delete.
-      // In that case, we forcefully sign out anyway.
+      // Ignore if the token is too old
     } finally {
-      // 2. Sign out the local Firebase instance
-      await FirebaseAuth.instance.signOut();
+      // 2. Sign out using the controller (clears Firebase and Google sessions)
+      await ref.read(authControllerProvider.notifier).signOut();
       if (mounted) {
         setState(() {
           _isLoading = false;

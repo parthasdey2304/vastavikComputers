@@ -33,11 +33,14 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<UserCredential> signInWithGoogle() async {
+    final provider = GoogleAuthProvider();
+    provider.setCustomParameters({'prompt': 'select_account'});
+    
     // For Web and Windows, Firebase Auth handles the OAuth flow directly
     if (kIsWeb) {
-      return await _firebaseAuth.signInWithPopup(GoogleAuthProvider());
+      return await _firebaseAuth.signInWithPopup(provider);
     } else if (defaultTargetPlatform == TargetPlatform.windows || defaultTargetPlatform == TargetPlatform.macOS || defaultTargetPlatform == TargetPlatform.linux) {
-      return await _firebaseAuth.signInWithProvider(GoogleAuthProvider());
+      return await _firebaseAuth.signInWithProvider(provider);
     } else {
       // For iOS and Android, use the native google_sign_in plugin
       final GoogleSignInAccount? googleUser = await GoogleSignIn.instance.authenticate();
@@ -57,6 +60,11 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> signOut() async {
+    try {
+      await GoogleSignIn.instance.signOut();
+    } catch (_) {
+      // Ignore if not signed in or not supported
+    }
     await _firebaseAuth.signOut();
   }
 }
