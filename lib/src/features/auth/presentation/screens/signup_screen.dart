@@ -26,13 +26,19 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
   Future<void> _signup() async {
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty || _nameController.text.isEmpty) return;
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty || _nameController.text.isEmpty || _confirmPasswordController.text.isEmpty) return;
     
-    await ref.read(authControllerProvider.notifier).signUp(
+    if (_passwordController.text != _confirmPasswordController.text) {
+      // Show error
+      return;
+    }
+
+    final isNewUser = await ref.read(authControllerProvider.notifier).signUp(
       _emailController.text.trim(),
       _passwordController.text.trim(),
     );
@@ -65,13 +71,17 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           ),
         );
       } else {
-        context.go('/welcome');
+        if (isNewUser) {
+          context.go('/welcome');
+        } else {
+          context.go('/home');
+        }
       }
     }
   }
 
-  Future<void> _signupWithGoogle() async {
-    await ref.read(authControllerProvider.notifier).signInWithGoogle();
+  Future<void> _signUpWithGoogle() async {
+    final isNewUser = await ref.read(authControllerProvider.notifier).signInWithGoogle();
     
     if (mounted) {
       final authState = ref.read(authControllerProvider);
@@ -101,15 +111,11 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           ),
         );
       } else {
-        final user = FirebaseAuth.instance.currentUser;
-        if (user != null && user.metadata.creationTime != null && user.metadata.lastSignInTime != null) {
-          final diff = user.metadata.lastSignInTime!.difference(user.metadata.creationTime!);
-          if (diff.inSeconds < 5) {
-            context.go('/welcome');
-            return;
-          }
+        if (isNewUser) {
+          context.go('/welcome');
+        } else {
+          context.go('/home');
         }
-        context.go('/home');
       }
     }
   }

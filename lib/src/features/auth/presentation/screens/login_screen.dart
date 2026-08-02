@@ -30,7 +30,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _login() async {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) return;
     
-    await ref.read(authControllerProvider.notifier).signIn(
+    final isNewUser = await ref.read(authControllerProvider.notifier).signIn(
       _emailController.text.trim(),
       _passwordController.text.trim(),
     );
@@ -63,21 +63,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         );
       } else {
-        final user = FirebaseAuth.instance.currentUser;
-        if (user != null && user.metadata.creationTime != null && user.metadata.lastSignInTime != null) {
-          final diff = user.metadata.lastSignInTime!.difference(user.metadata.creationTime!);
-          if (diff.inSeconds < 5) {
-            context.go('/welcome');
-            return;
-          }
+        if (isNewUser) {
+          context.go('/welcome');
+        } else {
+          context.go('/home');
         }
-        context.go('/home');
       }
     }
   }
 
   Future<void> _loginWithGoogle() async {
-    await ref.read(authControllerProvider.notifier).signInWithGoogle();
+    final isNewUser = await ref.read(authControllerProvider.notifier).signInWithGoogle();
     
     if (mounted) {
       final authState = ref.read(authControllerProvider);
@@ -107,15 +103,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         );
       } else {
-        final user = FirebaseAuth.instance.currentUser;
-        if (user != null && user.metadata.creationTime != null && user.metadata.lastSignInTime != null) {
-          final diff = user.metadata.lastSignInTime!.difference(user.metadata.creationTime!);
-          if (diff.inSeconds < 5) {
-            context.go('/welcome');
-            return;
-          }
+        if (isNewUser) {
+          context.go('/welcome');
+        } else {
+          context.go('/home');
         }
-        context.go('/home');
       }
     }
   }

@@ -35,19 +35,40 @@ class AuthController extends AsyncNotifier<void> {
     return null;
   }
 
-  Future<void> signIn(String email, String password) async {
+  Future<bool> signIn(String email, String password) async {
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => ref.read(authRepositoryProvider).signInWithEmailAndPassword(email, password));
+    try {
+      final cred = await ref.read(authRepositoryProvider).signInWithEmailAndPassword(email, password);
+      state = const AsyncData(null);
+      return cred.additionalUserInfo?.isNewUser ?? false;
+    } catch (e, st) {
+      state = AsyncError(e, st);
+      return false;
+    }
   }
 
-  Future<void> signUp(String email, String password) async {
+  Future<bool> signUp(String email, String password) async {
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => ref.read(authRepositoryProvider).createUserWithEmailAndPassword(email, password));
+    try {
+      final cred = await ref.read(authRepositoryProvider).createUserWithEmailAndPassword(email, password);
+      state = const AsyncData(null);
+      return cred.additionalUserInfo?.isNewUser ?? true; // Default true for signup
+    } catch (e, st) {
+      state = AsyncError(e, st);
+      return false;
+    }
   }
 
-  Future<void> signInWithGoogle() async {
+  Future<bool> signInWithGoogle() async {
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => ref.read(authRepositoryProvider).signInWithGoogle());
+    try {
+      final cred = await ref.read(authRepositoryProvider).signInWithGoogle();
+      state = const AsyncData(null);
+      return cred.additionalUserInfo?.isNewUser ?? false;
+    } catch (e, st) {
+      state = AsyncError(e, st);
+      return false;
+    }
   }
 
   Future<void> signOut() async {
