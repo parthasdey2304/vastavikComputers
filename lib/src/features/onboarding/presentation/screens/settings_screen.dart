@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/theme_provider.dart';
 import '../../../../core/widgets/responsive_wrapper.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   Future<void> _confirmLogout(BuildContext context) async {
@@ -33,20 +35,33 @@ class SettingsScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appBackground,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.appSurface,
         elevation: 1,
-        title: const Text('Settings', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
-        iconTheme: const IconThemeData(color: AppTheme.textPrimary),
+        title: Text('Settings', style: TextStyle(color: context.appTextPrimary, fontWeight: FontWeight.bold)),
+        iconTheme: IconThemeData(color: context.appTextPrimary),
       ),
       body: ResponsiveWrapper(
         child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _buildSection('Account', [
+          _buildSection(context, 'Appearance', [
+            SwitchListTile(
+              title: Text('Dark Mode', style: TextStyle(fontWeight: FontWeight.w600, color: context.appTextPrimary)),
+              secondary: Icon(isDark ? Icons.dark_mode : Icons.light_mode, color: AppTheme.primary),
+              value: isDark,
+              onChanged: (val) {
+                ref.read(themeModeProvider.notifier).set(val ? ThemeMode.dark : ThemeMode.light);
+              },
+              activeColor: AppTheme.primary,
+            ),
+          ]),
+          const SizedBox(height: 16),
+          _buildSection(context, 'Account', [
             _buildTile(context, 'Change Password', Icons.lock_outline, () {
               _showChangePasswordDialog(context);
             }),
@@ -55,7 +70,7 @@ class SettingsScreen extends StatelessWidget {
             }, isDestructive: true),
           ]),
           const SizedBox(height: 16),
-          _buildSection('App', [
+          _buildSection(context, 'App', [
             _buildTile(context, 'About', Icons.info_outline, () {
               showAboutDialog(
                 context: context,
@@ -85,13 +100,13 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSection(String title, List<Widget> children) {
+  Widget _buildSection(BuildContext context, String title, List<Widget> children) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 8),
-          child: Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.textSecondary)),
+          child: Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: context.appTextSecondary)),
         ),
         Card(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -104,8 +119,8 @@ class SettingsScreen extends StatelessWidget {
   Widget _buildTile(BuildContext context, String title, IconData icon, VoidCallback onTap, {bool isDestructive = false}) {
     return ListTile(
       leading: Icon(icon, color: isDestructive ? Colors.red : AppTheme.primary),
-      title: Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: isDestructive ? Colors.red : AppTheme.textPrimary)),
-      trailing: const Icon(Icons.chevron_right, color: AppTheme.textSecondary),
+      title: Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: isDestructive ? Colors.red : context.appTextPrimary)),
+      trailing: Icon(Icons.chevron_right, color: context.appTextSecondary),
       onTap: onTap,
     );
   }

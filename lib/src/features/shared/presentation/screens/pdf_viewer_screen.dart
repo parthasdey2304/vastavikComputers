@@ -12,22 +12,22 @@ class PdfViewerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appBackground,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        title: Text(title, style: const TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
-        iconTheme: const IconThemeData(color: AppTheme.textPrimary),
+        backgroundColor: context.appSurface,
+        elevation: context.isDark ? 0 : 1,
+        title: Text(title, style: TextStyle(color: context.appTextPrimary, fontWeight: FontWeight.bold)),
+        iconTheme: IconThemeData(color: context.appTextPrimary),
         actions: [
           IconButton(
-            icon: const Icon(Icons.print, color: AppTheme.primary),
+            icon: Icon(Icons.print, color: AppTheme.primary),
             onPressed: () {
               Printing.layoutPdf(onLayout: (_) => pdfBytes);
             },
             tooltip: 'Print',
           ),
           IconButton(
-            icon: const Icon(Icons.share, color: AppTheme.primary),
+            icon: Icon(Icons.share, color: AppTheme.primary),
             onPressed: () {
               Printing.sharePdf(bytes: pdfBytes, filename: '$title.pdf');
             },
@@ -36,7 +36,7 @@ class PdfViewerScreen extends StatelessWidget {
         ],
       ),
       body: PdfPreview(
-        build: (_) => pdfBytes,
+        build: (_) => Uint8List.fromList(pdfBytes),
         canChangePageFormat: false,
         canChangeOrientation: false,
         canDebug: false,

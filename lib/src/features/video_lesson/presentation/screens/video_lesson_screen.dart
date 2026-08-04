@@ -1,23 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_highlight/flutter_highlight.dart';
+import 'package:flutter_highlight/themes/atom-one-dark.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class VideoLessonScreen extends StatefulWidget {
-  const VideoLessonScreen({super.key});
+  final Map<String, dynamic>? lessonData;
+  const VideoLessonScreen({super.key, this.lessonData});
 
   @override
   State<VideoLessonScreen> createState() => _VideoLessonScreenState();
 }
 
 class _VideoLessonScreenState extends State<VideoLessonScreen> {
-  late YoutubePlayerController _controller;
+  late YoutubePlayerController? _controller;
+  bool _videoError = false;
+
+  Map<String, dynamic> get _data => widget.lessonData ?? const {};
+  String get _title => _data['title']?.toString() ?? 'Java Programming';
+  String get _description =>
+      _data['description']?.toString() ?? 'Learn the fundamentals of classes, objects, and inheritance in Java.';
+  String get _youtubeUrl => _data['youtubeUrl']?.toString() ?? 'https://www.youtube.com/watch?v=KzZJ0g7QZyk';
+  int get _positionSec =>
+      (_data['youtubePositionSec'] is num)
+          ? (_data['youtubePositionSec'] as num).toInt()
+          : 0;
+  String get _whiteboardUrl => _data['whiteboardImageUrl']?.toString() ?? '';
+  String get _codeSample => _data['codeSample']?.toString() ?? '';
+  String get _notes => _data['notes']?.toString() ?? '';
 
   @override
   void initState() {
     super.initState();
+    _initVideo();
+  }
+
+  void _initVideo() {
+    final videoId = YoutubePlayerController.convertUrlToId(_youtubeUrl);
+    if (videoId == null) {
+      setState(() => _videoError = true);
+      _controller = null;
+      return;
+    }
     _controller = YoutubePlayerController.fromVideoId(
-      videoId: 'KzZJ0g7QZyk', // Dummy unlisted video ID for Java OOP
+      videoId: videoId,
       autoPlay: false,
+      startSeconds: _positionSec.toDouble(),
       params: const YoutubePlayerParams(
         showControls: true,
         mute: false,
@@ -25,28 +54,33 @@ class _VideoLessonScreenState extends State<VideoLessonScreen> {
         loop: false,
       ),
     );
+    _controller!.stream.listen((value) {
+      if (mounted && value.hasError && !_videoError) {
+        setState(() => _videoError = true);
+      }
+    });
   }
 
   @override
   void dispose() {
-    _controller.close();
+    _controller?.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appBackground,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.appSurface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
+          icon: Icon(Icons.arrow_back, color: context.appTextPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text('Java Programming', style: TextStyle(color: AppTheme.textPrimary, fontSize: 16)),
+        title: Text(_title, style: TextStyle(color: context.appTextPrimary, fontSize: 16)),
         actions: [
-          IconButton(icon: const Icon(Icons.bookmark_border, color: AppTheme.textPrimary), onPressed: () {}),
+          IconButton(icon: Icon(Icons.bookmark_border, color: context.appTextPrimary), onPressed: () {}),
         ],
       ),
       body: Column(
@@ -54,12 +88,60 @@ class _VideoLessonScreenState extends State<VideoLessonScreen> {
           // Video Player
           AspectRatio(
             aspectRatio: 16 / 9,
-            child: YoutubePlayer(
-              controller: _controller,
-              backgroundColor: Colors.black,
-            ),
+            child: _controller != null
+                ? Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      YoutubePlayer(
+                        controller: _controller!,
+                        backgroundColor: Colors.black,
+                      ),
+                      if (_videoError)
+                        Container(
+                          color: Colors.black,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.lock_outline,
+                                  color: Colors.white38, size: 48),
+                              SizedBox(height: 12),
+                              Padding(
+                                padding:
+                                    EdgeInsets.symmetric(horizontal: 24),
+                                child: Text(
+                                  'This video could not be played. Make sure the video is set to "Unlisted" (not Private) on YouTube.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.white70),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  )
+                : Container(
+                    color: Colors.black,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.lock_outline,
+                              color: Colors.white38, size: 48),
+                          SizedBox(height: 12),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 24),
+                            child: Text(
+                              'No playable video attached to this lesson.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
           ),
-          
+
           // Details
           Expanded(
             child: DefaultTabController(
@@ -67,20 +149,20 @@ class _VideoLessonScreenState extends State<VideoLessonScreen> {
               child: Column(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(20),
-                    color: Colors.white,
-                    child: const Column(
+                    padding: EdgeInsets.all(20),
+                    color: context.appSurface,
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Object-Oriented Programming (OOP)', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
+                        Text(_title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: context.appTextPrimary)),
                         SizedBox(height: 8),
-                        Text('Learn the fundamentals of classes, objects, and inheritance in Java.', style: TextStyle(color: AppTheme.textSecondary)),
+                        Text(_description, style: TextStyle(color: context.appTextSecondary)),
                       ],
                     ),
                   ),
-                  const TabBar(
+                  TabBar(
                     labelColor: AppTheme.primary,
-                    unselectedLabelColor: AppTheme.textSecondary,
+                    unselectedLabelColor: context.appTextSecondary,
                     indicatorColor: AppTheme.primary,
                     tabs: [
                       Tab(text: 'Code & Notes'),
@@ -105,35 +187,89 @@ class _VideoLessonScreenState extends State<VideoLessonScreen> {
   }
 
   Widget _buildCodeTab() {
+    final hasCode = _codeSample.trim().isNotEmpty;
+    final hasNotes = _notes.trim().isNotEmpty;
     return ListView(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       children: [
-        const Text('Implementation:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppTheme.codeBackground,
-            borderRadius: BorderRadius.circular(12),
+        if (hasCode) ...[
+          Text('Implementation:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E1E2E),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: HighlightView(
+              _codeSample,
+              language: 'java',
+              theme: atomOneDarkTheme,
+              padding: EdgeInsets.zero,
+              textStyle: GoogleFonts.firaCode(fontSize: 13, height: 1.5),
+            ),
           ),
-          child: const Text(
-            'class Animal {\n  void sound() {\n    System.out.println("Bark");\n  }\n}\n\nclass Dog extends Animal {}',
-            style: TextStyle(fontFamily: 'monospace', color: AppTheme.codeText, height: 1.5),
+        ],
+        if (hasNotes) ...[
+          SizedBox(height: 24),
+          Text('Key Takeaways:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          SizedBox(height: 8),
+          Text(_notes, style: TextStyle(height: 1.5)),
+        ],
+        if (!hasCode && !hasNotes)
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 40),
+            child: Center(
+              child: Text(
+                'No code or notes added for this lesson yet.',
+                style: TextStyle(color: context.appTextSecondary),
+              ),
+            ),
           ),
-        ),
       ],
     );
   }
 
   Widget _buildWhiteboardTab() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.draw, size: 64, color: AppTheme.textSecondary.withAlpha(50)),
-          const SizedBox(height: 16),
-          const Text('Whiteboard snapshot will appear here', style: TextStyle(color: AppTheme.textSecondary)),
-        ],
+    final url = _whiteboardUrl;
+    if (url.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.draw, size: 64, color: context.appTextSecondary.withAlpha(50)),
+            SizedBox(height: 16),
+            Text('No whiteboard snapshot for this lesson yet.', style: TextStyle(color: context.appTextSecondary)),
+          ],
+        ),
+      );
+    }
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(16),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Image.network(
+          url,
+          fit: BoxFit.contain,
+          loadingBuilder: (context, child, progress) {
+            if (progress == null) return child;
+            return SizedBox(
+              height: 400,
+              child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            );
+          },
+          errorBuilder: (context, error, stack) => Container(
+            height: 300,
+            color: context.appSurface,
+            child: Center(
+              child: Text(
+                'Could not load whiteboard image.',
+                style: TextStyle(color: context.appTextSecondary),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

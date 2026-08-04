@@ -42,36 +42,36 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appBackground,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        title: const Text('Payment History', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
-        iconTheme: const IconThemeData(color: AppTheme.textPrimary),
+        backgroundColor: context.appSurface,
+        elevation: context.isDark ? 0 : 1,
+        title: Text('Payment History', style: TextStyle(color: context.appTextPrimary, fontWeight: FontWeight.bold)),
+        iconTheme: IconThemeData(color: context.appTextPrimary),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator())
           : _transactions.isEmpty
-              ? const Center(
+              ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.receipt_long_outlined, size: 64, color: AppTheme.textSecondary),
+                      Icon(Icons.receipt_long_outlined, size: 64, color: context.appTextSecondary),
                       SizedBox(height: 16),
-                      Text('No transactions yet.', style: TextStyle(fontSize: 18, color: AppTheme.textSecondary)),
+                      Text('No transactions yet.', style: TextStyle(fontSize: 18, color: context.appTextSecondary)),
                     ],
                   ),
                 )
               : ListView.builder(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16),
                   itemCount: _transactions.length,
                   itemBuilder: (context, index) {
                     final txn = _transactions[index];
                     return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
+                      margin: EdgeInsets.only(bottom: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       child: ListTile(
-                        contentPadding: const EdgeInsets.all(16),
+                        contentPadding: EdgeInsets.all(16),
                         leading: CircleAvatar(
                           backgroundColor: txn.status == 'success' ? Colors.green.withAlpha(30) : Colors.red.withAlpha(30),
                           child: Icon(
@@ -79,12 +79,12 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
                             color: txn.status == 'success' ? Colors.green : Colors.red,
                           ),
                         ),
-                        title: Text(txn.description, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        title: Text(txn.description, style: TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: Padding(
-                          padding: const EdgeInsets.only(top: 4),
+                          padding: EdgeInsets.only(top: 4),
                           child: Text(
                             '${txn.timestamp.day}/${txn.timestamp.month}/${txn.timestamp.year}',
-                            style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                            style: TextStyle(color: context.appTextSecondary, fontSize: 12),
                           ),
                         ),
                         trailing: Text(

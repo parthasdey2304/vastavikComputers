@@ -38,15 +38,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           context: context,
           builder: (context) => AlertDialog(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            title: const Text('Email Sent'),
-            content: const Text('We have sent a password reset link to your email address.'),
+            title: Text('Email Sent'),
+            content: Text('We have sent a password reset link to your email address.'),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.pop(context); // Close dialog
                   context.go('/login'); // Go back to login
                 },
-                child: const Text('OK'),
+                child: Text('OK'),
               ),
             ],
           ),
@@ -66,55 +66,55 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appBackground,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
+          icon: Icon(Icons.arrow_back, color: context.appTextPrimary),
           onPressed: () => context.go('/login'),
         ),
       ),
       body: SafeArea(
         child: ResponsiveWrapper(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+            padding: EdgeInsets.all(24.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Icon(Icons.lock_reset_rounded, size: 80, color: AppTheme.primary),
-                const SizedBox(height: 24),
+                Icon(Icons.lock_reset_rounded, size: 80, color: AppTheme.primary),
+                SizedBox(height: 24),
                 Text(
                   'Forgot Password?',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
+                    color: context.appTextPrimary,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 Text(
                   'Enter the email address associated with your account and we will send you a link to reset your password.',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppTheme.textSecondary,
+                    color: context.appTextSecondary,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 48),
+                SizedBox(height: 48),
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Email',
                     prefixIcon: Icon(Icons.email_outlined),
                   ),
                 ),
-                const SizedBox(height: 32),
+                SizedBox(height: 32),
                 ElevatedButton(
                   onPressed: _isLoading ? null : _resetPassword,
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
+                      : Text(
                           'Send Reset Link',
                           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),

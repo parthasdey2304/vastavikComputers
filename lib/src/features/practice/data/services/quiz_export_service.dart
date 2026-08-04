@@ -55,7 +55,8 @@ class QuizExportService {
             final idx = entry.key;
             final q = entry.value;
             final options = q['options'] as List<dynamic>;
-            final correctIdx = q['correctAnswerIndex'] as int;
+            final correctIdx = (q['answerIndex'] ?? q['correctIndex'] ?? q['correctAnswerIndex'] ?? 0) as int;
+            final explanation = q['explanation']?.toString();
             
             return pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -73,11 +74,12 @@ class QuizExportService {
                   );
                 }),
                 pw.SizedBox(height: 8),
-                pw.Container(
-                  padding: const pw.EdgeInsets.all(8),
-                  color: PdfColors.grey100,
-                  child: pw.Text('Explanation: ${q['explanation']}', style: const pw.TextStyle(fontSize: 12, fontStyle: pw.FontStyle.italic)),
-                ),
+                if (explanation != null && explanation.isNotEmpty)
+                  pw.Container(
+                    padding: const pw.EdgeInsets.all(8),
+                    color: PdfColors.grey100,
+                    child: pw.Text('Explanation: $explanation', style: const pw.TextStyle(fontSize: 12, fontStyle: pw.FontStyle.italic)),
+                  ),
                 pw.SizedBox(height: 20),
               ],
             );

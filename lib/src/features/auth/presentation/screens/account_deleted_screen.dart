@@ -48,23 +48,23 @@ class _AccountDeletedScreenState extends ConsumerState<AccountDeletedScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(32.0),
+          padding: EdgeInsets.all(32.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Spacer(),
+              Spacer(),
               Container(
-                padding: const EdgeInsets.all(32),
+                padding: EdgeInsets.all(32),
                 decoration: BoxDecoration(
-                  color: AppTheme.surface,
+                  color: context.appSurface,
                   borderRadius: BorderRadius.circular(32),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.red.withOpacity(0.1),
+                      color: Colors.red.withValues(alpha: 0.1),
                       blurRadius: 24,
                       offset: const Offset(0, 12),
                     ),
@@ -77,30 +77,30 @@ class _AccountDeletedScreenState extends ConsumerState<AccountDeletedScreen> {
                       height: 100,
                       width: 100,
                     ),
-                    const SizedBox(height: 32),
-                    const Text(
+                    SizedBox(height: 32),
+                    Text(
                       'Account Removed',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
+                        color: context.appTextPrimary,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
+                    SizedBox(height: 16),
+                    Text(
                       'Your data has been removed by the admin. You no longer have access to this application.',
                       style: TextStyle(
                         fontSize: 16,
                         height: 1.5,
-                        color: AppTheme.textSecondary,
+                        color: context.appTextSecondary,
                       ),
                       textAlign: TextAlign.center,
                     ),
                   ],
                 ),
               ),
-              const Spacer(),
+              Spacer(),
               SizedBox(
                 height: 56,
                 child: ElevatedButton(
@@ -115,7 +115,7 @@ class _AccountDeletedScreenState extends ConsumerState<AccountDeletedScreen> {
                   ),
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
+                      : Text(
                           'Head over to Sign Up',
                           style: TextStyle(
                             fontSize: 18,
@@ -124,7 +124,7 @@ class _AccountDeletedScreenState extends ConsumerState<AccountDeletedScreen> {
                         ),
                 ),
               ),
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
             ],
           ),
         ),

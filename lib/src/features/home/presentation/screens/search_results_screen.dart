@@ -32,42 +32,42 @@ class SearchResultsScreen extends StatelessWidget {
     }).toList();
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appBackground,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
+        backgroundColor: context.appSurface,
+        elevation: context.isDark ? 0 : 1,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
+          icon: Icon(Icons.arrow_back, color: context.appTextPrimary),
           onPressed: () => context.pop(),
         ),
         title: Text(
           'Search: "$query"',
-          style: const TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold),
+          style: TextStyle(color: context.appTextPrimary, fontWeight: FontWeight.bold),
         ),
       ),
       body: SafeArea(
         child: ResponsiveWrapper(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+            padding: EdgeInsets.all(24.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (matchedCourses.isEmpty && matchedTopics.isEmpty)
                   Center(
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 60.0),
+                      padding: EdgeInsets.only(top: 60.0),
                       child: Column(
                         children: [
-                          Icon(Icons.search_off_rounded, size: 80, color: AppTheme.textSecondary.withOpacity(0.5)),
-                          const SizedBox(height: 16),
+                          Icon(Icons.search_off_rounded, size: 80, color: context.appTextSecondary.withValues(alpha: 0.5)),
+                          SizedBox(height: 16),
                           Text(
                             'No results found for "$query"',
-                            style: const TextStyle(fontSize: 18, color: AppTheme.textSecondary, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: 18, color: context.appTextSecondary, fontWeight: FontWeight.bold),
                           ),
-                          const SizedBox(height: 8),
-                          const Text(
+                          SizedBox(height: 8),
+                          Text(
                             'Try adjusting your search to find what you are looking for.',
-                            style: TextStyle(color: AppTheme.textSecondary),
+                            style: TextStyle(color: context.appTextSecondary),
                           ),
                         ],
                       ),
@@ -75,11 +75,11 @@ class SearchResultsScreen extends StatelessWidget {
                   ),
 
                 if (matchedCourses.isNotEmpty) ...[
-                  const Text(
+                  Text(
                     'Courses',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: context.appTextPrimary),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -93,9 +93,9 @@ class SearchResultsScreen extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final course = matchedCourses[index];
                       return Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.appSurface,
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: const [BoxShadow(color: Color(0x05000000), blurRadius: 10, offset: Offset(0, 4))],
                         ),
@@ -103,17 +103,17 @@ class SearchResultsScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(12),
+                              padding: EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: (course['color'] as Color).withOpacity(0.1),
+                                color: (course['color'] as Color).withValues(alpha: 0.1),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(course['icon'] as IconData, color: course['color'] as Color, size: 28),
                             ),
-                            const SizedBox(height: 12),
+                            SizedBox(height: 12),
                             Text(
                               course['title'] as String,
-                              style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimary, fontSize: 13),
+                              style: TextStyle(fontWeight: FontWeight.w600, color: context.appTextPrimary, fontSize: 13),
                               textAlign: TextAlign.center,
                             ),
                           ],
@@ -121,15 +121,15 @@ class SearchResultsScreen extends StatelessWidget {
                       );
                     },
                   ),
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32),
                 ],
 
                 if (matchedTopics.isNotEmpty) ...[
-                  const Text(
+                  Text(
                     'Topics & Lessons',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: context.appTextPrimary),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -137,39 +137,39 @@ class SearchResultsScreen extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final topic = matchedTopics[index];
                       return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(16),
+                        margin: EdgeInsets.only(bottom: 12),
+                        padding: EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.appSurface,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppTheme.surface),
+                          border: Border.all(color: context.appSurface),
                         ),
                         child: Row(
                           children: [
                             Container(
                               width: 48,
                               height: 48,
-                              decoration: BoxDecoration(color: AppTheme.surface, borderRadius: BorderRadius.circular(12)),
-                              child: const Icon(Icons.play_arrow_rounded, color: AppTheme.primary),
+                              decoration: BoxDecoration(color: context.appSurface, borderRadius: BorderRadius.circular(12)),
+                              child: Icon(Icons.play_arrow_rounded, color: AppTheme.primary),
                             ),
-                            const SizedBox(width: 16),
+                            SizedBox(width: 16),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     topic['title']!,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textPrimary),
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: context.appTextPrimary),
                                   ),
-                                  const SizedBox(height: 4),
+                                  SizedBox(height: 4),
                                   Text(
                                     '${topic['subject']} • ${topic['duration']}',
-                                    style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+                                    style: TextStyle(fontSize: 13, color: context.appTextSecondary),
                                   ),
                                 ],
                               ),
                             ),
-                            const Icon(Icons.chevron_right, color: AppTheme.textSecondary),
+                            Icon(Icons.chevron_right, color: context.appTextSecondary),
                           ],
                         ),
                       );

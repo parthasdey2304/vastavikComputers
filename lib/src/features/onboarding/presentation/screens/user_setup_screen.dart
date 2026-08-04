@@ -93,60 +93,60 @@ class _UserSetupScreenState extends State<UserSetupScreen> {
     return PopScope(
       canPop: false, // Cannot skip profile setup
       child: Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.appBackground,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           automaticallyImplyLeading: false, // No back button
-          title: const Text('Complete Your Profile', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
+          title: Text('Complete Your Profile', style: TextStyle(color: context.appTextPrimary, fontWeight: FontWeight.bold)),
           centerTitle: true,
         ),
       body: ResponsiveWrapper(
         child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Center(
+              Center(
                 child: CircleAvatar(
                   radius: 50,
                   backgroundColor: AppTheme.primary,
                   child: Icon(Icons.person_add, size: 50, color: Colors.white),
                 ),
               ),
-              const SizedBox(height: 8),
-              const Center(
-                child: Text('Tell us about yourself!', style: TextStyle(fontSize: 16, color: AppTheme.textSecondary)),
+              SizedBox(height: 8),
+              Center(
+                child: Text('Tell us about yourself!', style: TextStyle(fontSize: 16, color: context.appTextSecondary)),
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
 
               // Email
               _buildLabel('Email Address'),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               TextFormField(
                 initialValue: FirebaseAuth.instance.currentUser?.email ?? '',
                 readOnly: true,
                 decoration: _inputDecoration('Email Address', Icons.email_outlined).copyWith(
-                  fillColor: AppTheme.surface,
+                  fillColor: context.appSurface,
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // Name
               _buildLabel('Full Name'),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               TextFormField(
                 controller: _nameController,
                 decoration: _inputDecoration('Enter your full name', Icons.person_outline),
                 validator: (val) => val == null || val.trim().isEmpty ? 'Name is required' : null,
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // Date of Birth
               _buildLabel('Date of Birth'),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               TextFormField(
                 controller: _dobController,
                 readOnly: true,
@@ -154,35 +154,35 @@ class _UserSetupScreenState extends State<UserSetupScreen> {
                 decoration: _inputDecoration('Pick your date of birth', Icons.calendar_today),
                 validator: (val) => val == null || val.trim().isEmpty ? 'Date of birth is required' : null,
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // School
               _buildLabel('School Name'),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               TextFormField(
                 controller: _schoolController,
                 decoration: _inputDecoration('Enter your school name', Icons.school_outlined),
                 validator: (val) => val == null || val.trim().isEmpty ? 'School name is required' : null,
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // Board
               _buildLabel('Board'),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               _buildDropdown(_selectedBoard, _boards, (val) => setState(() => _selectedBoard = val!)),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // Class
               _buildLabel('Class'),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               _buildDropdown(_selectedClass, _classes, (val) => setState(() => _selectedClass = val!)),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // Preferred Language
               _buildLabel('Preferred Language'),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               _buildDropdown(_selectedLanguage, _languages, (val) => setState(() => _selectedLanguage = val!)),
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
 
               // Save Button
               SizedBox(
@@ -198,10 +198,10 @@ class _UserSetupScreenState extends State<UserSetupScreen> {
                   ),
                   child: _isSaving
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Save changes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      : Text('Save changes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
             ],
           ),
           ),
@@ -214,7 +214,7 @@ class _UserSetupScreenState extends State<UserSetupScreen> {
   Widget _buildLabel(String text) {
     return Text(
       text,
-      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
+      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: context.appTextPrimary),
     );
   }
 
@@ -226,11 +226,11 @@ class _UserSetupScreenState extends State<UserSetupScreen> {
       fillColor: Colors.white,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: AppTheme.surface),
+        borderSide: BorderSide(color: context.appSurface),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: AppTheme.surface),
+        borderSide: BorderSide(color: context.appSurface),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
@@ -241,17 +241,17 @@ class _UserSetupScreenState extends State<UserSetupScreen> {
 
   Widget _buildDropdown(String value, List<String> items, ValueChanged<String?> onChanged) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.surface),
+        border: Border.all(color: context.appSurface),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: value,
           isExpanded: true,
-          icon: const Icon(Icons.keyboard_arrow_down, color: AppTheme.primary),
+          icon: Icon(Icons.keyboard_arrow_down, color: AppTheme.primary),
           items: items.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(),
           onChanged: onChanged,
         ),

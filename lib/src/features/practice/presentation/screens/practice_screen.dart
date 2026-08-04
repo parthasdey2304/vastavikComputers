@@ -11,14 +11,14 @@ class PracticeScreen extends StatelessWidget {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.appBackground,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: context.appSurface,
           elevation: 0,
-          title: const Text('Practice & Quizzes', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
-          bottom: const TabBar(
+          title: Text('Practice & Quizzes', style: TextStyle(color: context.appTextPrimary, fontWeight: FontWeight.bold)),
+          bottom: TabBar(
             labelColor: AppTheme.primary,
-            unselectedLabelColor: AppTheme.textSecondary,
+            unselectedLabelColor: context.appTextSecondary,
             indicatorColor: AppTheme.primary,
             tabs: [
               Tab(text: 'MCQs'),
@@ -42,7 +42,7 @@ class PracticeScreen extends StatelessWidget {
 
   Widget _buildMCQTab(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       children: [
         _buildQuizCard(context, 'Core Java Basics', 'java'),
         _buildQuizCard(context, 'Python Data Structures', 'python'),
@@ -53,12 +53,12 @@ class PracticeScreen extends StatelessWidget {
 
   Widget _buildQuizCard(BuildContext context, String title, String subjectId) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
+      margin: EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.surface),
+        border: Border.all(color: context.appSurface),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,28 +67,28 @@ class PracticeScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: AppTheme.primary.withAlpha(30),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Text('AI Powered', style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold, fontSize: 12)),
+                child: Text('AI Powered', style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold, fontSize: 12)),
               ),
-              const Icon(Icons.auto_awesome, color: AppTheme.primary, size: 20),
+              Icon(Icons.auto_awesome, color: AppTheme.primary, size: 20),
             ],
           ),
-          const SizedBox(height: 16),
-          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
-          const SizedBox(height: 4),
-          const Text('Generate custom MCQs', style: TextStyle(color: AppTheme.textSecondary)),
-          const SizedBox(height: 20),
+          SizedBox(height: 16),
+          Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: context.appTextPrimary)),
+          SizedBox(height: 4),
+          Text('Generate custom MCQs', style: TextStyle(color: context.appTextSecondary)),
+          SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
                 context.push('/quiz-setup?topic=${Uri.encodeComponent(title)}');
               },
-              child: const Text('Start Quiz'),
+              child: Text('Start Quiz'),
             ),
           ),
         ],
@@ -105,36 +105,36 @@ class PracticeScreen extends StatelessWidget {
     ];
 
     return ListView.builder(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       itemCount: challenges.length,
       itemBuilder: (context, index) {
         final c = challenges[index];
         final isHard = c['difficulty'] == 'Hard';
         final diffColor = isHard ? Colors.red : (c['difficulty'] == 'Medium' ? Colors.orange : Colors.green);
         return Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppTheme.surface)),
+          margin: EdgeInsets.only(bottom: 16),
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(color: context.appSurface, borderRadius: BorderRadius.circular(20), border: Border.all(color: context.appSurface)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(c['tags']!, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
+                  Text(c['tags']!, style: TextStyle(color: context.appTextSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
                   Text(c['difficulty']!, style: TextStyle(color: diffColor, fontWeight: FontWeight.bold, fontSize: 13)),
                 ],
               ),
-              const SizedBox(height: 8),
-              Text(c['title']!, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
-              const SizedBox(height: 20),
+              SizedBox(height: 8),
+              Text(c['title']!, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: context.appTextPrimary)),
+              SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
                     context.push('/editor', extra: c);
                   }, 
-                  child: const Text('Solve Challenge')
+                  child: Text('Solve Challenge')
                 ),
               ),
             ],
@@ -152,34 +152,34 @@ class PracticeScreen extends StatelessWidget {
     ];
 
     return ListView.builder(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       itemCount: papers.length,
       itemBuilder: (context, index) {
         final p = papers[index];
         return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.surface)),
+          margin: EdgeInsets.only(bottom: 12),
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(color: context.appSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: context.appSurface)),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(color: AppTheme.primary.withAlpha(20), borderRadius: BorderRadius.circular(12)),
-                child: const Icon(Icons.picture_as_pdf_rounded, color: AppTheme.primary),
+                child: Icon(Icons.picture_as_pdf_rounded, color: AppTheme.primary),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(p['title']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textPrimary)),
-                    const SizedBox(height: 4),
-                    Text('${p['board']} • ${p['year']}', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+                    Text(p['title']!, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: context.appTextPrimary)),
+                    SizedBox(height: 4),
+                    Text('${p['board']} • ${p['year']}', style: TextStyle(color: context.appTextSecondary, fontSize: 13)),
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
-              TextButton(onPressed: () {}, child: const Text('View Paper')),
+              SizedBox(width: 8),
+              TextButton(onPressed: () {}, child: Text('View Paper')),
             ],
           ),
         );

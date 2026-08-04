@@ -45,21 +45,21 @@ class _MyNotesScreenState extends State<MyNotesScreen> {
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('New Note'),
+        title: Text('New Note'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: titleController, decoration: const InputDecoration(hintText: 'Title')),
-            const SizedBox(height: 12),
-            TextField(controller: contentController, decoration: const InputDecoration(hintText: 'Content'), maxLines: 4),
+            TextField(controller: titleController, decoration: InputDecoration(hintText: 'Title')),
+            SizedBox(height: 12),
+            TextField(controller: contentController, decoration: InputDecoration(hintText: 'Content'), maxLines: 4),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('Cancel')),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary),
-            child: const Text('Save', style: TextStyle(color: Colors.white)),
+            child: Text('Save', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -89,50 +89,50 @@ class _MyNotesScreenState extends State<MyNotesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appBackground,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        title: const Text('My Notes', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
-        iconTheme: const IconThemeData(color: AppTheme.textPrimary),
+        backgroundColor: context.appSurface,
+        elevation: context.isDark ? 0 : 1,
+        title: Text('My Notes', style: TextStyle(color: context.appTextPrimary, fontWeight: FontWeight.bold)),
+        iconTheme: IconThemeData(color: context.appTextPrimary),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addNote,
         backgroundColor: AppTheme.primary,
-        child: const Icon(Icons.add, color: Colors.white),
+        child: Icon(Icons.add, color: Colors.white),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator())
           : _notes.isEmpty
-              ? const Center(
+              ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.note_add_outlined, size: 64, color: AppTheme.textSecondary),
+                      Icon(Icons.note_add_outlined, size: 64, color: context.appTextSecondary),
                       SizedBox(height: 16),
-                      Text('No notes yet!', style: TextStyle(fontSize: 18, color: AppTheme.textSecondary)),
+                      Text('No notes yet!', style: TextStyle(fontSize: 18, color: context.appTextSecondary)),
                       SizedBox(height: 4),
-                      Text('Tap + to create your first note.', style: TextStyle(color: AppTheme.textSecondary)),
+                      Text('Tap + to create your first note.', style: TextStyle(color: context.appTextSecondary)),
                     ],
                   ),
                 )
               : ListView.builder(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16),
                   itemCount: _notes.length,
                   itemBuilder: (context, index) {
                     final note = _notes[index];
                     return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
+                      margin: EdgeInsets.only(bottom: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       child: ListTile(
-                        contentPadding: const EdgeInsets.all(16),
-                        title: Text(note['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
+                        contentPadding: EdgeInsets.all(16),
+                        title: Text(note['title'] ?? '', style: TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: Padding(
-                          padding: const EdgeInsets.only(top: 8),
+                          padding: EdgeInsets.only(top: 8),
                           child: Text(note['content'] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis),
                         ),
                         trailing: IconButton(
-                          icon: const Icon(Icons.delete_outline, color: Colors.red),
+                          icon: Icon(Icons.delete_outline, color: Colors.red),
                           onPressed: () => _deleteNote(note['id']),
                         ),
                       ),

@@ -21,6 +21,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _firestoreService = FirestoreService();
   UserModel? _user;
   bool _isLoading = true;
+  String? _selectedCourseName;
 
   @override
   void initState() {
@@ -34,9 +35,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     try {
       final user = await _firestoreService.getUserProfile(uid);
+      final selection = await _firestoreService.getStudentSelection(uid);
       if (mounted) {
         setState(() {
           _user = user;
+          _selectedCourseName = selection?['courseName']?.toString();
           _isLoading = false;
         });
       }
@@ -45,24 +48,57 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  void _launchUpgrade() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Payment integration coming soon! Contact admin for premium access.')),
+  Future<void> _changeCourse() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+    final courses = await _firestoreService.streamCourses().first;
+    if (!mounted) return;
+    final selected = await showDialog<String>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: Text('Select your course'),
+        children: [
+          for (final course in courses)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(ctx, course.id),
+              child: Row(
+                children: [
+                  Icon(Icons.school, color: AppTheme.primary, size: 22),
+                  SizedBox(width: 12),
+                  Text(course.title),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
+    if (selected == null) return;
+    final course = courses.firstWhere((c) => c.id == selected);
+    await _firestoreService.selectCourse(uid, course.id, course.title);
+    if (mounted) {
+      setState(() => _selectedCourseName = course.title);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Course set to ${course.title}.')),
+      );
+    }
+  }
+
+  void _launchUpgrade() {
+    context.push('/payment');
   }
 
   Future<void> _logout() async {
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Log Out'),
-        content: const Text('Are you sure you want to log out?'),
+        title: Text('Log Out'),
+        content: Text('Are you sure you want to log out?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('Cancel')),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Log Out', style: TextStyle(color: Colors.white)),
+            child: Text('Log Out', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -79,8 +115,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        backgroundColor: AppTheme.background,
+      return Scaffold(
+        backgroundColor: context.appBackground,
         body: Center(child: CircularProgressIndicator()),
       );
     }
@@ -89,41 +125,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final subtitle = _user != null ? '${_user!.studentClass} • ${_user!.board} Board' : 'Complete your profile';
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appBackground,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('My Profile', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
+        title: Text('My Profile', style: TextStyle(color: context.appTextPrimary, fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
       body: ResponsiveWrapper(
         child: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20),
         child: Column(
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 50,
-              backgroundColor: AppTheme.surface,
+              backgroundColor: context.appSurface,
               child: Icon(Icons.person, size: 50, color: Colors.white),
             ),
-            const SizedBox(height: 16),
-            Text(displayName, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
-            Text(subtitle, style: const TextStyle(fontSize: 14, color: AppTheme.textSecondary)),
-            const SizedBox(height: 32),
+            SizedBox(height: 16),
+            Text(displayName, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: context.appTextPrimary)),
+            Text(subtitle, style: TextStyle(fontSize: 14, color: context.appTextSecondary)),
+            SizedBox(height: 32),
 
             // Stats Row
             Row(
               children: [
                 _buildStatCard('12', 'Day Streak', Icons.local_fire_department, Colors.orange),
-                const SizedBox(width: 16),
+                SizedBox(width: 16),
                 _buildStatCard('45', 'Lessons', Icons.play_lesson, AppTheme.primary),
               ],
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
 
             // Premium Banner
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [AppTheme.primary, AppTheme.accent],
@@ -134,9 +170,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.workspace_premium, color: Colors.white, size: 40),
-                  const SizedBox(width: 16),
-                  const Expanded(
+                  Icon(Icons.workspace_premium, color: Colors.white, size: 40),
+                  SizedBox(width: 16),
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -148,21 +184,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ElevatedButton(
                     onPressed: _launchUpgrade,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
+                      backgroundColor: context.appSurface,
                       foregroundColor: AppTheme.primary,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('Upgrade'),
+                    child: Text('Upgrade'),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
 
             // Options
             _buildOptionTile('Edit Profile', Icons.person_outline, onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfileScreen())).then((_) => _loadProfile());
             }),
+            _buildOptionTile(
+              _selectedCourseName == null ? 'Select Course' : 'My Course: $_selectedCourseName',
+              Icons.school_outlined,
+              onTap: _changeCourse,
+            ),
             _buildOptionTile('My Notes', Icons.notes, onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (_) => const MyNotesScreen()));
             }),
@@ -183,18 +224,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildStatCard(String value, String label, IconData icon, Color color) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.appSurface,
           borderRadius: BorderRadius.circular(16),
           boxShadow: const [BoxShadow(color: Color(0x05000000), blurRadius: 10, offset: Offset(0, 4))],
         ),
         child: Column(
           children: [
             Icon(icon, color: color, size: 32),
-            const SizedBox(height: 12),
-            Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
-            Text(label, style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+            SizedBox(height: 12),
+            Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: context.appTextPrimary)),
+            Text(label, style: TextStyle(fontSize: 12, color: context.appTextSecondary)),
           ],
         ),
       ),
@@ -203,17 +244,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildOptionTile(String title, IconData icon, {bool isDestructive = false, VoidCallback? onTap}) {
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       leading: Container(
-        padding: const EdgeInsets.all(8),
+        padding: EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: isDestructive ? Colors.red.withAlpha(25) : AppTheme.surface,
+          color: isDestructive ? Colors.red.withAlpha(25) : context.appSurface,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(icon, color: isDestructive ? Colors.red : AppTheme.primary),
       ),
-      title: Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: isDestructive ? Colors.red : AppTheme.textPrimary)),
-      trailing: const Icon(Icons.chevron_right, color: AppTheme.textSecondary),
+      title: Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: isDestructive ? Colors.red : context.appTextPrimary)),
+      trailing: Icon(Icons.chevron_right, color: context.appTextSecondary),
       onTap: onTap,
     );
   }

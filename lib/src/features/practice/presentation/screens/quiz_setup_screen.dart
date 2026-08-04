@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -48,74 +47,74 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appBackground,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
+        backgroundColor: context.appSurface,
+        elevation: context.isDark ? 0 : 1,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
+          icon: Icon(Icons.arrow_back, color: context.appTextPrimary),
           onPressed: () => context.pop(),
         ),
-        title: const Text('AI Quiz Generator', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
+        title: Text('AI Quiz Generator', style: TextStyle(color: context.appTextPrimary, fontWeight: FontWeight.bold)),
       ),
       body: SafeArea(
         child: ResponsiveWrapper(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+            padding: EdgeInsets.all(24.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.auto_awesome, color: AppTheme.primary, size: 32),
-                    const SizedBox(width: 12),
+                    Icon(Icons.auto_awesome, color: AppTheme.primary, size: 32),
+                    SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'Generate quiz for:\n${widget.topic}',
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: context.appTextPrimary),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 32),
+                SizedBox(height: 32),
                 
-                const Text('Number of Questions', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
-                const SizedBox(height: 12),
+                Text('Number of Questions', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: context.appTextPrimary)),
+                SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [10, 20, 30].map((num) {
                     final isSelected = _selectedQuestions == num;
                     return ChoiceChip(
-                      label: Text('$num', style: TextStyle(color: isSelected ? Colors.white : AppTheme.textPrimary, fontWeight: FontWeight.bold)),
+                      label: Text('$num', style: TextStyle(color: isSelected ? Colors.white : context.appTextPrimary, fontWeight: FontWeight.bold)),
                       selected: isSelected,
                       selectedColor: AppTheme.primary,
-                      backgroundColor: Colors.white,
+                      backgroundColor: context.appSurface,
                       onSelected: (val) {
                         if (val) setState(() => _selectedQuestions = num);
                       },
                     );
                   }).toList(),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
-                const Text('Difficulty', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
-                const SizedBox(height: 12),
+                Text('Difficulty', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: context.appTextPrimary)),
+                SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: ['Easy', 'Medium', 'Hard'].map((diff) {
                     final isSelected = _selectedDifficulty == diff;
                     return ChoiceChip(
-                      label: Text(diff, style: TextStyle(color: isSelected ? Colors.white : AppTheme.textPrimary, fontWeight: FontWeight.bold)),
+                      label: Text(diff, style: TextStyle(color: isSelected ? Colors.white : context.appTextPrimary, fontWeight: FontWeight.bold)),
                       selected: isSelected,
                       selectedColor: AppTheme.primary,
-                      backgroundColor: Colors.white,
+                      backgroundColor: context.appSurface,
                       onSelected: (val) {
                         if (val) setState(() => _selectedDifficulty = diff);
                       },
                     );
                   }).toList(),
                 ),
-                const SizedBox(height: 48),
+                SizedBox(height: 48),
 
                 SizedBox(
                   width: double.infinity,
@@ -127,7 +126,7 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     ),
                     child: _isGenerating 
-                        ? const Row(
+                        ? Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)),
@@ -135,7 +134,7 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                               Text('Generating Magic...', style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
                             ],
                           )
-                        : const Text('Generate AI Quiz', style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
+                        : Text('Generate AI Quiz', style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],

@@ -43,17 +43,15 @@ class AuthRepositoryImpl implements AuthRepository {
       return await _firebaseAuth.signInWithProvider(provider);
     } else {
       // For iOS and Android, use the native google_sign_in plugin
-      final GoogleSignInAccount? googleUser = await GoogleSignIn.instance.authenticate();
+      final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
 
-      if (googleUser != null) {
-        final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-        final GoogleSignInClientAuthorization? authz = await googleUser.authorizationClient.authorizationForScopes([]);
-        final OAuthCredential credential = GoogleAuthProvider.credential(
-          accessToken: authz?.accessToken,
-          idToken: googleAuth.idToken,
-        );
-        return await _firebaseAuth.signInWithCredential(credential);
-      }
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+      final GoogleSignInClientAuthorization? authz = await googleUser.authorizationClient.authorizationForScopes([]);
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: authz?.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      return await _firebaseAuth.signInWithCredential(credential);
       throw Exception('Google Sign-In aborted by user');
     }
   }

@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/signup_screen.dart';
@@ -18,6 +17,9 @@ import '../features/practice/presentation/screens/quiz_setup_screen.dart';
 import '../features/practice/presentation/screens/quiz_taking_screen.dart';
 import '../features/practice/presentation/screens/code_editor_screen.dart';
 import '../features/learning_path/presentation/screens/lesson_detail_screen.dart';
+import '../features/onboarding/presentation/screens/payment_screen.dart';
+import '../features/onboarding/presentation/screens/payment_history_screen.dart';
+import '../features/practice/presentation/screens/pyq_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateChangesProvider);
@@ -27,10 +29,20 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: '/home',
     redirect: (context, state) {
       final isLoggedIn = authState.value != null;
+      final isAdminRouteNow = state.matchedLocation.startsWith('/admin');
       final isAuthRoute = state.matchedLocation == '/login' || state.matchedLocation == '/signup' || state.matchedLocation == '/forgot-password';
       final isDeletedRoute = state.matchedLocation == '/account-deleted';
 
       if (authState.isLoading) return null;
+
+      // ---- Phase 1: Admin route guard ----
+      // The admin page is web-only and has its own username/password gate,
+      // so it is exempt from the app-level auth/profile redirects below.
+      if (isAdminRouteNow) {
+        // Block access on non-web platforms.
+        if (!kIsWeb) return '/home';
+        return null;
+      }
 
       // Only redirect if the profile has fully loaded AND is explicitly marked deleted
       if (isLoggedIn && userProfileState.hasValue && !userProfileState.isLoading) {
@@ -117,10 +129,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           return LessonDetailScreen(lessonData: lessonData);
         },
       ),
-      GoRoute(
-        path: '/admin',
-        builder: (context, state) => const AdminDashboard(),
-      ),
+      if (kIsWeb)
+        GoRoute(
+          path: '/admin',
+          builder: (context, state) => const AdminDashboard(),
+        ),
       GoRoute(
         path: '/setup',
         builder: (context, state) => const UserSetupScreen(),
@@ -132,6 +145,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/account-deleted',
         builder: (context, state) => const AccountDeletedScreen(),
+      ),
+      GoRoute(
+        path: '/payment',
+        builder: (context, state) => const PaymentScreen(),
+      ),
+      GoRoute(
+        path: '/payment-history',
+        builder: (context, state) => const PaymentHistoryScreen(),
+      ),
+      GoRoute(
+        path: '/pyq',
+        builder: (context, state) => const PyqScreen(),
       ),
     ],
   );

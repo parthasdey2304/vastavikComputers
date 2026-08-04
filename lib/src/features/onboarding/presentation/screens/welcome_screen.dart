@@ -43,11 +43,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
     return PopScope(
       canPop: false, // Cannot go back from welcome screen
       child: Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.appBackground,
         body: SafeArea(
           child: ResponsiveWrapper(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 24),
+              padding: EdgeInsets.symmetric(horizontal: 28.0, vertical: 24),
               child: FadeTransition(
                 opacity: _fadeAnimation,
                 child: SlideTransition(
@@ -56,36 +56,36 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Spacer(),
+                      Spacer(),
 
                       // SVG Illustration
                       SvgPicture.asset(
                         'assets/images/welcome_illustration.svg',
                         height: 220,
                       ),
-                      const SizedBox(height: 32),
+                      SizedBox(height: 32),
 
                       // Headline
                       Text(
                         'Welcome to Vastavik Computers! 🚀',
                         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppTheme.textPrimary,
+                          color: context.appTextPrimary,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       Text(
                         'Computer Science is not just about writing code — it\'s about learning how to think, solve problems, and build the future.\n\nEvery great innovation starts with a single line of code. Are you ready to begin your journey?',
                         style: TextStyle(
                           fontSize: 15,
                           height: 1.6,
-                          color: AppTheme.textSecondary,
+                          color: context.appTextSecondary,
                         ),
                         textAlign: TextAlign.center,
                       ),
 
-                      const Spacer(),
+                      Spacer(),
 
                       // Arrow button → goes to profile setup
                       Center(
@@ -95,16 +95,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                               'Set up your profile to continue',
                               style: TextStyle(
                                 fontSize: 13,
-                                color: AppTheme.textSecondary,
+                                color: context.appTextSecondary,
                                 fontStyle: FontStyle.italic,
                               ),
                             ),
-                            const SizedBox(height: 12),
+                            SizedBox(height: 12),
                             InkWell(
                               onTap: () => context.go('/setup'),
                               borderRadius: BorderRadius.circular(100),
                               child: Container(
-                                padding: const EdgeInsets.all(20),
+                                padding: EdgeInsets.all(20),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   gradient: const LinearGradient(
@@ -114,16 +114,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: AppTheme.primary.withOpacity(0.35),
+                                      color: AppTheme.primary.withValues(alpha: 0.35),
                                       blurRadius: 18,
                                       spreadRadius: 2,
                                       offset: const Offset(0, 6),
                                     ),
                                   ],
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.arrow_forward_rounded,
-                                  color: Colors.white,
+                                  color: context.appSurface,
                                   size: 40,
                                 ),
                               ),
@@ -131,7 +131,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                           ],
                         ),
                       ),
-                      const SizedBox(height: 40),
+                      SizedBox(height: 40),
                     ],
                   ),
                 ),

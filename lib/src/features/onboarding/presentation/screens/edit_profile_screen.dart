@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/models/user_model.dart';
 import '../../../../core/services/firestore_service.dart';
 import '../../../../core/widgets/responsive_wrapper.dart';
 
@@ -110,69 +109,69 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appBackground,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        title: const Text('Edit Profile', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
-        iconTheme: const IconThemeData(color: AppTheme.textPrimary),
+        backgroundColor: context.appSurface,
+        elevation: context.isDark ? 0 : 1,
+        title: Text('Edit Profile', style: TextStyle(color: context.appTextPrimary, fontWeight: FontWeight.bold)),
+        iconTheme: IconThemeData(color: context.appTextPrimary),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator())
           : ResponsiveWrapper(
               child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(24),
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildLabel('Email Address'),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     TextFormField(
                       initialValue: FirebaseAuth.instance.currentUser?.email ?? '',
                       readOnly: true,
                       decoration: _inputDecoration('Email Address', Icons.email_outlined).copyWith(
-                        fillColor: AppTheme.surface,
+                        fillColor: context.appSurface,
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
                     _buildLabel('Full Name'),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     TextFormField(
                       controller: _nameController,
                       decoration: _inputDecoration('Full Name', Icons.person_outline),
                       validator: (val) => val == null || val.trim().isEmpty ? 'Required' : null,
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
                     _buildLabel('Date of Birth'),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     TextFormField(
                       controller: _dobController,
                       readOnly: true,
                       onTap: _pickDate,
                       decoration: _inputDecoration('Date of Birth', Icons.calendar_today),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
                     _buildLabel('School Name'),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     TextFormField(
                       controller: _schoolController,
                       decoration: _inputDecoration('School', Icons.school_outlined),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
                     _buildLabel('Board'),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _buildDropdown(_selectedBoard, _boards, (val) => setState(() => _selectedBoard = val!)),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
                     _buildLabel('Class'),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _buildDropdown(_selectedClass, _classes, (val) => setState(() => _selectedClass = val!)),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
                     _buildLabel('Preferred Language'),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _buildDropdown(_selectedLanguage, _languages, (val) => setState(() => _selectedLanguage = val!)),
-                    const SizedBox(height: 40),
+                    SizedBox(height: 40),
                     SizedBox(
                       width: double.infinity,
                       height: 56,
@@ -185,7 +184,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                         child: _isSaving
                             ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text('Save Changes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                            : Text('Save Changes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       ),
                     ),
                   ],
@@ -197,7 +196,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _buildLabel(String text) {
-    return Text(text, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary));
+    return Text(text, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: context.appTextPrimary));
   }
 
   InputDecoration _inputDecoration(String hint, IconData icon) {
@@ -206,18 +205,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       prefixIcon: Icon(icon, color: AppTheme.primary),
       filled: true,
       fillColor: Colors.white,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.surface)),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.surface)),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: context.appSurface)),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: context.appSurface)),
       focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppTheme.primary, width: 2)),
     );
   }
 
   Widget _buildDropdown(String value, List<String> items, ValueChanged<String?> onChanged) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.surface)),
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(color: context.appSurface, borderRadius: BorderRadius.circular(14), border: Border.all(color: context.appSurface)),
       child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(value: value, isExpanded: true, icon: const Icon(Icons.keyboard_arrow_down, color: AppTheme.primary), items: items.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(), onChanged: onChanged),
+        child: DropdownButton<String>(value: value, isExpanded: true, icon: Icon(Icons.keyboard_arrow_down, color: AppTheme.primary), items: items.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(), onChanged: onChanged),
       ),
     );
   }

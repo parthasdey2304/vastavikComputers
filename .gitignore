@@ -46,3 +46,10 @@ GoogleService-Info.plist
 # Removing the infrastructure files
 infrastructure.md
 lib/src/core/config/secrets.dart
+
+# AI Artifacts
+.commandcode/
+task.md
+walkthrough.md
+implementation_plan.md
+flutter_04.png

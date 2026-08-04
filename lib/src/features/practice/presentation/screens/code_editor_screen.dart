@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/atom-one-dark.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -122,21 +121,21 @@ solve()
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1E2430),
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.wifi_off, color: Colors.redAccent),
             SizedBox(width: 12),
             Text('No Internet', style: TextStyle(color: Colors.white)),
           ],
         ),
-        content: const Text(
+        content: Text(
           'Internet connection is required to run this code on the remote server.',
           style: TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK', style: TextStyle(color: Color(0xFF4ADE80))),
+            child: Text('OK', style: TextStyle(color: Color(0xFF4ADE80))),
           ),
         ],
       ),
@@ -151,10 +150,10 @@ solve()
         backgroundColor: const Color(0xFF1E293B),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => context.pop(),
         ),
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.terminal, color: Color(0xFF4ADE80)),
             SizedBox(width: 8),
@@ -163,7 +162,7 @@ solve()
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings, color: Colors.white70), 
+            icon: Icon(Icons.settings, color: Colors.white70), 
             onPressed: () {
               showModalBottomSheet(
                 context: context,
@@ -171,15 +170,15 @@ solve()
                 builder: (context) => StatefulBuilder(
                   builder: (context, setModalState) {
                     return Padding(
-                      padding: const EdgeInsets.all(24.0),
+                      padding: EdgeInsets.all(24.0),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text('Editor Settings', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 24),
+                          Text('Editor Settings', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                          SizedBox(height: 24),
                           Row(
                             children: [
-                              const Text('Font Size', style: TextStyle(color: Colors.white70, fontSize: 16)),
+                              Text('Font Size', style: TextStyle(color: Colors.white70, fontSize: 16)),
                               Expanded(
                                 child: Slider(
                                   value: _editorFontSize,
@@ -194,10 +193,10 @@ solve()
                                   },
                                 ),
                               ),
-                              Text('${_editorFontSize.round()}px', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              Text('${_editorFontSize.round()}px', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                             ],
                           ),
-                          const SizedBox(height: 24),
+                          SizedBox(height: 24),
                         ],
                       ),
                     );
@@ -250,36 +249,36 @@ solve()
     final diffColor = difficulty == 'Hard' ? Colors.redAccent : (difficulty == 'Medium' ? Colors.orangeAccent : const Color(0xFF4ADE80));
     
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24.0),
+      padding: EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
-          const SizedBox(height: 12),
+          Text(title, style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
+          SizedBox(height: 12),
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(color: diffColor.withAlpha(30), borderRadius: BorderRadius.circular(4)),
                 child: Text(difficulty, style: TextStyle(color: diffColor, fontWeight: FontWeight.bold, fontSize: 13)),
               ),
-              const SizedBox(width: 16),
-              const Icon(Icons.thumb_up_alt_outlined, color: Colors.white54, size: 16),
-              const SizedBox(width: 4),
-              const Text('45.2K', style: TextStyle(color: Colors.white54, fontSize: 13)),
-              const SizedBox(width: 16),
-              const Icon(Icons.thumb_down_alt_outlined, color: Colors.white54, size: 16),
-              const SizedBox(width: 4),
-              const Text('1.4K', style: TextStyle(color: Colors.white54, fontSize: 13)),
+              SizedBox(width: 16),
+              Icon(Icons.thumb_up_alt_outlined, color: Colors.white54, size: 16),
+              SizedBox(width: 4),
+              Text('45.2K', style: TextStyle(color: Colors.white54, fontSize: 13)),
+              SizedBox(width: 16),
+              Icon(Icons.thumb_down_alt_outlined, color: Colors.white54, size: 16),
+              SizedBox(width: 4),
+              Text('1.4K', style: TextStyle(color: Colors.white54, fontSize: 13)),
             ],
           ),
-          const SizedBox(height: 24),
-          const Text('Solve the problem exactly as specified. Read the inputs carefully.', style: TextStyle(color: Colors.white70, fontSize: 16)),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
+          Text('Solve the problem exactly as specified. Read the inputs carefully.', style: TextStyle(color: Colors.white70, fontSize: 16)),
+          SizedBox(height: 24),
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white12)),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Example 1:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16)),
@@ -299,19 +298,19 @@ solve()
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: const Color(0xFF1E293B),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(color: const Color(0xFF0F172A), borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.white12)),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _selectedLanguage,
                     dropdownColor: const Color(0xFF1E293B),
-                    icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white54),
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    icon: Icon(Icons.keyboard_arrow_down, color: Colors.white54),
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                     items: const [
                       DropdownMenuItem(value: 'python', child: Text('Python 3.10')),
                       DropdownMenuItem(value: 'java', child: Text('Java')),
@@ -329,15 +328,15 @@ solve()
                   ),
                 ),
               ),
-              const Spacer(),
-              const SizedBox(width: 8),
+              Spacer(),
+              SizedBox(width: 8),
               ElevatedButton.icon(
                 onPressed: _isRunning ? null : _runCode,
-                icon: _isRunning ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0F172A))) : const Icon(Icons.play_arrow, color: Color(0xFF0F172A)),
-                label: Text(_isRunning ? 'RUNNING' : 'RUN', style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold)),
+                icon: _isRunning ? SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0F172A))) : Icon(Icons.play_arrow, color: Color(0xFF0F172A)),
+                label: Text(_isRunning ? 'RUNNING' : 'RUN', style: TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF4ADE80),
-                  disabledBackgroundColor: const Color(0xFF4ADE80).withOpacity(0.5),
+                  disabledBackgroundColor: const Color(0xFF4ADE80).withValues(alpha: 0.5),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
               ),
@@ -354,7 +353,7 @@ solve()
                   // Line numbers
                   Container(
                     width: 40,
-                    padding: const EdgeInsets.only(top: 16, right: 8),
+                    padding: EdgeInsets.only(top: 16, right: 8),
                     color: const Color(0xFF0F172A),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -370,7 +369,7 @@ solve()
                       children: [
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.only(top: 8, left: 8, bottom: 80, right: 8),
+                          padding: EdgeInsets.only(top: 8, left: 8, bottom: 80, right: 8),
                           child: HighlightView(
                             _codeController.text.isEmpty ? ' ' : _codeController.text,
                             language: _selectedLanguage == 'sqlite3' ? 'sql' : _selectedLanguage,
@@ -386,7 +385,7 @@ solve()
                           cursorColor: Colors.white,
                           textAlignVertical: TextAlignVertical.top,
                           style: GoogleFonts.firaCode(color: Colors.transparent, fontSize: _editorFontSize, height: 1.5),
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.transparent,
                             border: InputBorder.none,
@@ -407,50 +406,50 @@ solve()
 
   Widget _buildNotesTab() {
     return Padding(
-      padding: const EdgeInsets.all(24.0),
+      padding: EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Algorithm Implementation Ideas', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF93C5FD))),
-          const SizedBox(height: 16),
+          Text('Algorithm Implementation Ideas', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF93C5FD))),
+          SizedBox(height: 16),
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(4), border: Border.all(color: const Color(0xFF0EA5E9))),
-                child: const Text('#graph-traversal', style: TextStyle(color: Color(0xFF93C5FD), fontSize: 12)),
+                child: Text('#graph-traversal', style: TextStyle(color: Color(0xFF93C5FD), fontSize: 12)),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(4), border: Border.all(color: const Color(0xFF4ADE80))),
-                child: const Text('#optimization', style: TextStyle(color: Color(0xFF4ADE80), fontSize: 12)),
+                child: Text('#optimization', style: TextStyle(color: Color(0xFF4ADE80), fontSize: 12)),
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           Expanded(
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(8),
               decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(12)),
               child: _notesList.isEmpty
-                ? const Center(child: Text('No notes yet. Add one below!', style: TextStyle(color: Colors.white30)))
+                ? Center(child: Text('No notes yet. Add one below!', style: TextStyle(color: Colors.white30)))
                 : ListView.builder(
                     itemCount: _notesList.length,
                     itemBuilder: (context, index) {
                       final note = _notesList[index];
                       return Dismissible(
                         key: Key(note['id']!),
-                        background: Container(color: Colors.red.withOpacity(0.3), alignment: Alignment.centerRight, padding: const EdgeInsets.only(right: 16), child: const Icon(Icons.delete, color: Colors.red)),
+                        background: Container(color: Colors.red.withValues(alpha: 0.3), alignment: Alignment.centerRight, padding: EdgeInsets.only(right: 16), child: Icon(Icons.delete, color: Colors.red)),
                         direction: DismissDirection.endToStart,
                         onDismissed: (_) => _deleteNote(note['id']!, index),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                          padding: EdgeInsets.symmetric(vertical: 6, horizontal: 8),
                           child: Row(
                             children: [
-                              const Text('• ', style: TextStyle(color: Color(0xFF4ADE80), fontSize: 16)),
-                              Expanded(child: Text(note['content']!, style: const TextStyle(color: Colors.white70, fontSize: 15))),
-                              IconButton(icon: const Icon(Icons.delete_outline, color: Colors.red, size: 18), onPressed: () => _deleteNote(note['id']!, index)),
+                              Text('• ', style: TextStyle(color: Color(0xFF4ADE80), fontSize: 16)),
+                              Expanded(child: Text(note['content']!, style: TextStyle(color: Colors.white70, fontSize: 15))),
+                              IconButton(icon: Icon(Icons.delete_outline, color: Colors.red, size: 18), onPressed: () => _deleteNote(note['id']!, index)),
                             ],
                           ),
                         ),
@@ -459,17 +458,17 @@ solve()
                   ),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(12)),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _quickNoteController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
+                    style: TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
                       hintText: 'Add a quick note...',
                       hintStyle: TextStyle(color: Colors.white30),
                       border: InputBorder.none,
@@ -483,9 +482,9 @@ solve()
                 GestureDetector(
                   onTap: _saveQuickNote,
                   child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(color: Color(0xFF0EA5E9), shape: BoxShape.circle),
-                    child: const Icon(Icons.send, color: Colors.white, size: 16),
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(color: Color(0xFF0EA5E9), shape: BoxShape.circle),
+                    child: Icon(Icons.send, color: Colors.white, size: 16),
                   ),
                 )
               ],
@@ -528,7 +527,7 @@ solve()
     final isSuccess = _outputExitCode == 0;
     
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.black,
         border: Border(top: BorderSide(color: Colors.white12)),
       ),
@@ -538,46 +537,46 @@ solve()
         children: [
           // Panel Header
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             color: const Color(0xFF1E293B),
             child: Row(
               children: [
-                const Icon(Icons.terminal, color: Color(0xFF93C5FD), size: 16),
-                const SizedBox(width: 8),
-                const Text('OUTPUT', style: TextStyle(color: Color(0xFF93C5FD), fontWeight: FontWeight.bold, letterSpacing: 1)),
-                const Spacer(),
+                Icon(Icons.terminal, color: Color(0xFF93C5FD), size: 16),
+                SizedBox(width: 8),
+                Text('OUTPUT', style: TextStyle(color: Color(0xFF93C5FD), fontWeight: FontWeight.bold, letterSpacing: 1)),
+                Spacer(),
                 if (_isRunning)
-                  const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF4ADE80)))
+                  SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF4ADE80)))
                 else
                   Row(
                     children: [
                       Container(width: 8, height: 8, decoration: BoxDecoration(shape: BoxShape.circle, color: isSuccess ? const Color(0xFF4ADE80) : Colors.redAccent)),
-                      const SizedBox(width: 6),
+                      SizedBox(width: 6),
                       Text(isSuccess ? 'Ready' : 'Failed', style: TextStyle(color: isSuccess ? const Color(0xFF4ADE80) : Colors.redAccent)),
                     ],
                   ),
-                const SizedBox(width: 16),
+                SizedBox(width: 16),
                 GestureDetector(
                   onTap: () => setState(() => _isOutputVisible = false),
-                  child: const Icon(Icons.close, color: Colors.white54, size: 20),
+                  child: Icon(Icons.close, color: Colors.white54, size: 20),
                 ),
               ],
             ),
           ),
           // Output Body
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('> Execution result:', style: TextStyle(color: Colors.white54, fontFamily: 'monospace')),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   Text(_outputResult, style: TextStyle(color: isSuccess ? const Color(0xFF4ADE80) : Colors.redAccent, fontFamily: 'monospace', fontSize: 14)),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
                   if (!_isRunning)
-                    Text('⏱ Process exited with code $_outputExitCode in ${_executionTime.toStringAsFixed(3)}s', style: const TextStyle(color: Colors.white30, fontFamily: 'monospace', fontSize: 12)),
+                    Text('⏱ Process exited with code $_outputExitCode in ${_executionTime.toStringAsFixed(3)}s', style: TextStyle(color: Colors.white30, fontFamily: 'monospace', fontSize: 12)),
                 ],
               ),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -7,6 +8,8 @@ import '../../../ai_chat/presentation/screens/chat_screen.dart';
 import '../../../onboarding/presentation/screens/profile_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../core/services/update_service.dart';
+import '../../../../core/services/firestore_service.dart';
+import '../../../../core/models/course.dart';
 import '../../../../core/widgets/responsive_wrapper.dart';
 import '../../../learning_path/presentation/screens/learning_path_screen.dart';
 
@@ -16,6 +19,11 @@ class HomeScreen extends ConsumerStatefulWidget {
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
+
+final _popularTopicsStreamProvider =
+    StreamProvider<List<PopularTopicModel>>((ref) {
+  return ref.watch(firestoreServiceProvider).streamPopularTopics();
+});
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
@@ -52,24 +60,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           builder: (context, setDialogState) {
             return AlertDialog(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: const Text('Update Available!'),
+              title: Text('Update Available!'),
               content: isDownloading
                   ? Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text('Downloading update...'),
-                        const SizedBox(height: 16),
+                        Text('Downloading update...'),
+                        SizedBox(height: 16),
                         LinearProgressIndicator(value: progress),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         Text('${(progress * 100).toStringAsFixed(1)}%'),
                       ],
                     )
-                  : const Text('A new version of vastavikComputers is available. Would you like to install it now?'),
+                  : Text('A new version of vastavikComputers is available. Would you like to install it now?'),
               actions: [
                 if (!isDownloading)
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Later'),
+                    child: Text('Later'),
                   ),
                 if (!isDownloading)
                   ElevatedButton(
@@ -86,7 +94,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         Navigator.of(context).pop();
                       }
                     },
-                    child: const Text('Update Now'),
+                    child: Text('Update Now'),
                   ),
               ],
             );
@@ -99,7 +107,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appBackground,
       body: IndexedStack(
         index: _selectedIndex,
         children: [
@@ -121,21 +129,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         slivers: [
           _buildHeader(),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildSectionTitle('Continue Learning', 'View All'),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 _buildContinueLearningCard(),
-                const SizedBox(height: 32),
+                SizedBox(height: 32),
+                _buildSectionTitle('Promotions', 'See All'),
+                SizedBox(height: 16),
+                _buildPromoBanners(),
+                SizedBox(height: 32),
+                _buildSectionTitle('More Practice', ''),
+                SizedBox(height: 16),
+                _buildPyqEntryCard(context),
+                SizedBox(height: 32),
                 _buildSectionTitle('Course Catalog', 'Explore'),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 _buildCourseCatalog(),
-                const SizedBox(height: 32),
+                SizedBox(height: 32),
                 _buildSectionTitle('Popular Topics', ''),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 _buildPopularTopics(),
-                const SizedBox(height: 32),
+                SizedBox(height: 32),
               ]),
             ),
           ),
@@ -151,9 +167,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return SliverToBoxAdapter(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        decoration: BoxDecoration(
+          color: context.appSurface,
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(32),
             bottomRight: Radius.circular(32),
@@ -172,42 +188,49 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Hello, $firstName 👋',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Hello, $firstName 👋',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: context.appTextPrimary,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'Ready to write some code?',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppTheme.textSecondary,
+                      SizedBox(height: 4),
+                      Text(
+                        'Ready to write some code?',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: context.appTextSecondary,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                SizedBox(width: 12),
                 GestureDetector(
                   onTap: () => setState(() => _selectedIndex = 3),
-                  child: const CircleAvatar(
+                  child: CircleAvatar(
                     radius: 24,
-                    backgroundColor: AppTheme.surface,
+                    backgroundColor: context.appSurface,
                     child: Icon(Icons.person, color: Colors.white),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: AppTheme.surface,
+                color: context.appSurface,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: TextField(
@@ -218,10 +241,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     _searchController.clear();
                   }
                 },
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Search courses, topics...',
                   border: InputBorder.none,
-                  icon: Icon(Icons.search, color: AppTheme.textSecondary),
+                  icon: Icon(Icons.search, color: context.appTextSecondary),
                 ),
               ),
             ),
@@ -235,21 +258,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.textPrimary,
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: context.appTextPrimary,
+            ),
           ),
         ),
         if (action.isNotEmpty)
-          Text(
-            action,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.primary,
+          Padding(
+            padding: EdgeInsets.only(left: 12),
+            child: Text(
+              action,
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.primary,
+              ),
             ),
           ),
       ],
@@ -258,7 +289,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildContinueLearningCard() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [AppTheme.primary, Color(0xFF6366F1)], // Indigo shades
@@ -268,7 +299,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primary.withOpacity(0.3),
+            color: AppTheme.primary.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -280,47 +311,46 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.code, color: Colors.white),
+                child: Icon(Icons.code, color: Colors.white),
               ),
-              const SizedBox(width: 12),
-              const Text(
+              SizedBox(width: 12),
+              Text(
                 'Java Programming',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: context.appSurface,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          const Text(
+          SizedBox(height: 20),
+          Text(
             'Object-Oriented Programming (OOP) Concepts',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: context.appSurface,
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Progress',
-                    style: TextStyle(color: Colors.white70, fontSize: 12),
-                  ),
-                  const SizedBox(height: 6),
-                  SizedBox(
-                    width: 150,
-                    child: ClipRRect(
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Progress',
+                      style: TextStyle(color: Colors.white70, fontSize: 12),
+                    ),
+                    SizedBox(height: 6),
+                    ClipRRect(
                       borderRadius: BorderRadius.circular(4),
                       child: const LinearProgressIndicator(
                         value: 0.65,
@@ -329,18 +359,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         minHeight: 6,
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              SizedBox(width: 12),
               GestureDetector(
                 onTap: () => context.push('/lesson'),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.appSurface,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Continue',
                     style: TextStyle(
                       color: AppTheme.primary,
@@ -356,126 +387,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildCourseCatalog() {
-    final courses = [
-      {'title': 'Python', 'icon': Icons.data_object, 'color': const Color(0xFFF59E0B)},
-      {'title': 'C Language', 'icon': Icons.terminal, 'color': const Color(0xFF10B981)},
-      {'title': 'Data Structs', 'icon': Icons.account_tree, 'color': const Color(0xFFEF4444)},
-      {'title': 'SQL', 'icon': Icons.storage, 'color': const Color(0xFF3B82F6)},
-    ];
-
-    return SizedBox(
-      height: 130,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: courses.length,
-        itemBuilder: (context, index) {
-          final course = courses[index];
-          return Container(
-            width: 110,
-            margin: const EdgeInsets.only(right: 16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x05000000),
-                  blurRadius: 10,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: (course['color'] as Color).withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    course['icon'] as IconData,
-                    color: course['color'] as Color,
-                    size: 28,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  course['title'] as String,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.textPrimary,
-                    fontSize: 13,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildPopularTopics() {
-    final topics = [
-      {'title': 'Arrays and Strings', 'duration': '15 mins', 'subject': 'Java'},
-      {'title': 'For and While Loops', 'duration': '10 mins', 'subject': 'Python'},
-      {'title': 'Pointers Basics', 'duration': '20 mins', 'subject': 'C'},
-    ];
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: topics.length,
-      itemBuilder: (context, index) {
-        final topic = topics[index];
+  Widget _buildPromoBanners() {
+    final fs = ref.read(firestoreServiceProvider);
+    return FutureBuilder<List<BannerModel>>(
+      future: fs.streamBanners().first,
+      builder: (context, snapshot) {
+        final banners = snapshot.data ?? [];
+        if (banners.isEmpty) return SizedBox.shrink();
+        final banner = banners.first; // show first promo on home
         return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(16),
+          width: double.infinity,
+          padding: EdgeInsets.all(22),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppTheme.surface),
+            color: Color(banner.color),
+            borderRadius: BorderRadius.circular(24),
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppTheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.play_arrow_rounded, color: AppTheme.primary),
+              Text(
+                banner.title,
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      topic['title']!,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${topic['subject']} • ${topic['duration']}',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppTheme.textSecondary,
-                      ),
-                    ),
-                  ],
+              if (banner.subtitle.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.only(top: 6),
+                  child: Text(banner.subtitle,
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.85))),
                 ),
-              ),
-              const Icon(Icons.chevron_right, color: AppTheme.textSecondary),
             ],
           ),
         );
@@ -483,10 +423,256 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  Widget _buildPyqEntryCard(BuildContext context) {
+    return InkWell(
+      onTap: () => context.push('/pyq'),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: context.appSurface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.article_outlined, color: AppTheme.primary, size: 32),
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Past Year Questions (PYQ)',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: context.appTextPrimary,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Practice previous board exam papers',
+                    style: TextStyle(fontSize: 12, color: context.appTextSecondary),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: context.appTextSecondary),
+          ],
+        ),
+      ),
+    );
+  }
+
+  IconData _resolveCourseIcon(String name) {
+    switch (name) {
+      case 'data_object':
+        return Icons.data_object;
+      case 'terminal':
+        return Icons.terminal;
+      case 'account_tree':
+        return Icons.account_tree;
+      case 'storage':
+        return Icons.storage;
+      case 'language':
+        return Icons.language;
+      case 'functions':
+        return Icons.functions;
+      case 'loop':
+        return Icons.loop;
+      case 'category':
+        return Icons.category;
+      default:
+        return Icons.code;
+    }
+  }
+
+  /// Saves the student's course choice (Img 4) and jumps to the Learn tab.
+  void _openCourse(CourseModel course) {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      ref.read(firestoreServiceProvider).selectCourse(uid, course.id, course.title);
+    }
+    ref.read(selectedCourseIdProvider.notifier).state = course.id;
+    setState(() => _selectedIndex = 1);
+  }
+
+  Widget _buildCourseCatalog() {
+    final coursesAsync = ref.watch(coursesStreamProvider);
+    const cardHeight = 150.0;
+    return coursesAsync.when(
+      loading: () => SizedBox(
+        height: cardHeight,
+        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      ),
+      error: (e, _) => SizedBox(
+        height: cardHeight,
+        child: Center(
+          child: Text('Could not load catalog.',
+              style: TextStyle(color: context.appTextSecondary)),
+        ),
+      ),
+      data: (courses) {
+        final catalog = courses.where((c) => c.catalogEnabled).toList();
+        if (catalog.isEmpty) {
+          return SizedBox(
+            height: cardHeight,
+            child: Center(
+              child: Text('No courses yet.',
+                  style: TextStyle(color: context.appTextSecondary)),
+            ),
+          );
+        }
+        return SizedBox(
+          height: cardHeight,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: catalog.length,
+            itemBuilder: (context, index) {
+              final course = catalog[index];
+              return InkWell(
+                onTap: () => _openCourse(course),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  width: 120,
+                  margin: EdgeInsets.only(right: 16),
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: context.appSurface,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x05000000),
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primary.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          _resolveCourseIcon(course.iconName),
+                          color: AppTheme.primary,
+                          size: 28,
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      Text(
+                        course.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: context.appTextPrimary,
+                          fontSize: 13,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPopularTopics() {
+    final topicsAsync = ref.watch(_popularTopicsStreamProvider);
+    return topicsAsync.when(
+      loading: () => const Center(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
+      error: (e, _) => Center(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Text('Could not load topics.',
+              style: TextStyle(color: context.appTextSecondary)),
+        ),
+      ),
+      data: (topics) {
+        if (topics.isEmpty) {
+          return SizedBox.shrink();
+        }
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: topics.length,
+          itemBuilder: (context, index) {
+            final topic = topics[index];
+            return Container(
+              margin: EdgeInsets.only(bottom: 12),
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: context.appSurface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: context.appSurface),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: context.appSurface,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(Icons.play_arrow_rounded, color: AppTheme.primary),
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          topic.title,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: context.appTextPrimary,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          [topic.subject, topic.duration]
+                              .where((s) => s.isNotEmpty)
+                              .join(' • '),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: context.appTextSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.chevron_right, color: context.appTextSecondary),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget _buildBottomNav() {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: context.appSurface,
         boxShadow: [
           BoxShadow(
             color: Color(0x0A000000),
@@ -497,7 +683,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -519,23 +705,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       onTap: () => setState(() => _selectedIndex = index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primary.withOpacity(0.1) : Colors.transparent,
+          color: isSelected ? AppTheme.primary.withValues(alpha: 0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
           children: [
             Icon(
               icon,
-              color: isSelected ? AppTheme.primary : AppTheme.textSecondary,
+              color: isSelected ? AppTheme.primary : context.appTextSecondary,
               size: 24,
             ),
             if (isSelected) ...[
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppTheme.primary,
                   fontWeight: FontWeight.bold,
                 ),
